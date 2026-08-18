@@ -1,2 +1,6 @@
 # Musiclyse
-A middleware shell agent and terminal that communicates between Ollama and a combo-detection engine to let your local LLMs "listen" to music
+An LLM music-listening agent and terminal that communicates between Ollama and a combo-detection engine
+
+![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
+
+Coming soon...
