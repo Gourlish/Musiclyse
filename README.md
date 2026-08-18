@@ -1,5 +1,5 @@
 # Musiclyse
-An LLM music-listening agent and terminal that communicates between Ollama and a combo-detection engine
+An LLM music-listening agent and terminal that communicates between Ollama and a combo-analysis engine
 
 ![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
 
