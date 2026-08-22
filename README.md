@@ -98,4 +98,3 @@ These are a few things that I want to implement in the future but so far haven't
 
 
 ![Musiclyse - A Gourlish Vibe Project](https://pbs.twimg.com/media/HQH-IMYWoAAX-p6.jpg)
-*A Gourlish Vibe Project!*
