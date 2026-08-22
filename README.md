@@ -65,5 +65,9 @@ These are a few things that I want to implement in the future but so far haven't
 * Improved BPM recognition. The BPM recognition in 0.1 isn't bad but often off by 1-2 values
 * Improved melody detection. I've had to limit the amount of MIDI data the JSON file stores to avoid excessive token bloat (it's still relatively high as is), and might look at better algorithms for which it can capture the melody of songs to "hear" the music.
 
+## Version history:
+
+* 2026/08/22 - Musiclyse 0.1 released. Its core features are listed in the "key features" section.
+
 
 *A Gourlish Vibe Project!*
