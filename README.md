@@ -46,7 +46,7 @@ ollama serve
 ollama pull muse-glimmer:30b
 ```
 
-5: Return to your PREVIOUS prompt, leaving the Ollama one open (once the model has installed and the server is running) and create a virtual Python 3.10 folder in the folder with the git clone you made:
+5: Return to your PREVIOUS prompt, leaving the Ollama one open (once the model has installed and the server is running) since the script will not run without an Ollama server running, and create a virtual Python 3.10 folder in the folder with the git clone you made:
 ```
 python3.10 -m venv ./venv
 source venv/bin/activate
