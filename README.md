@@ -73,14 +73,14 @@ python musiclyse-0.1.py
 
 ## Usage:
 
-* ```/listen <question>``` -	Analyzes the current track and answers your question
-* ```/listen <path or URL> <question>``` -		Switches to a new track, then analyses it
-* ```/save=filename.json``` -		Saves the most recently analysed track's data
-* ```/load filename.json [question]``` -		Reloads a previously saved track
-* ```/batch /path/to/folder``` -		Scans every audio file in a folder into saved-songs/
-* ```/clear``` -		Wipes the chat history and resets token counters
-* ```/persona <description>``` -		Changes the chat voice/tone (analysis rules stay the same)
-* ```/persona reset``` -		Restores the default persona
+* ```/listen <question>``` -	Analyzes the current track and answers your question.
+* ```/listen <path or URL> <question>``` -		Switches to a new track, then analyses it.
+* ```/save=filename.json``` -		Saves the most recently analysed track's data.
+* ```/load filename.json [question]``` -		Reloads a previously saved track.
+* ```/batch /path/to/folder``` -		Scans every audio file in a folder into /saved-songs. Song scanning is slow, so this is great to run overnight.
+* ```/clear``` -		Wipes the chat history and resets token counters.
+* ```/persona <description>``` -		Changes the chat voice/tone (analysis rules stay the same).
+* ```/persona reset``` -		Restores the default persona.
 
 When the context gets over the user-specified token context window, it will forget context from outside of it.
 
