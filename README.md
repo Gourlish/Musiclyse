@@ -1,5 +1,5 @@
 # Musiclyse
-An LLM music-listening agent and terminal that communicates between Ollama and a multi-step music analysis engine to "hear" music and discuss songs.
+An local LLM music-listening client that communicates between Ollama and a multi-step music analysis engine to "hear" music and discuss songs.
 
 ![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
 
