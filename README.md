@@ -7,6 +7,10 @@ An local LLM music-listening client that communicates between Ollama and a multi
 
 Musiclyse is a Python script that enables local conversations about music. It utilises a multi-step song processing engine linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
 
+## Version history:
+
+* 2026/08/22 - Musiclyse 0.1 released. Its core features are listed in the "key features" section.
+
 ## System requirements
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "
@@ -78,10 +82,6 @@ These are a few things that I want to implement in the future but so far haven't
 * Improved BPM recognition. The BPM recognition in 0.1 isn't bad but often off by 1-2 values
 * Improved melody detection. I've had to limit the amount of MIDI data the JSON file stores to avoid excessive token bloat (it's still relatively high as is), and might look at better algorithms for which it can capture the melody of songs to "hear" the music.
 * *Most of the project was vibecoded with the help of several LLMs, and while the current build appears to be fully usable, those with better coding knowledge could probably help patch any issues.
-
-## Version history:
-
-* 2026/08/22 - Musiclyse 0.1 released. Its core features are listed in the "key features" section.
 
 
 
