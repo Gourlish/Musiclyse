@@ -58,7 +58,18 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-(possible steps coming shortly)
+7: Install Music Flamingo:
+
+```
+pip install huggingface_hub
+huggingface-cli download nvidia/music-flamingo-hf
+```
+
+8: Run the software:
+
+```
+python musiclyse 0.1
+```
 
 ## Usage:
 
