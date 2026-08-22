@@ -68,7 +68,7 @@ huggingface-cli download nvidia/music-flamingo-hf
 8: Run the software:
 
 ```
-python musiclyse 0.1
+python musiclyse-0.1.py
 ```
 
 ## Usage:
