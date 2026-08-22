@@ -62,7 +62,7 @@ pip install -r requirements.txt
 
 ```
 pip install huggingface_hub
-huggingface-cli download nvidia/music-flamingo-hf
+hf download nvidia/music-flamingo-hf
 ```
 
 8: Run the software:
