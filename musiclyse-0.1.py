@@ -32,7 +32,7 @@ Prerequisites:
     # Optional but recommended for Essentia on macOS:
     #   conda create -n musicalyse python=3.10 && conda activate musicalyse && conda install -c conda-forge essentia
     ollama serve                       # or run the Ollama app
-    ollama pull muse-glimmer-30b
+    ollama pull muse-glimmer:30b
     pip install requests librosa mutagen
 
 Optional stem/MIDI stack:
@@ -1209,7 +1209,7 @@ MF_MODEL_ID = "nvidia/music-flamingo-hf"
 # NOTE: OLLAMA_URL is defined once, near the top of the file (search for
 # "OLLAMA_URL ="). It used to be redefined here too (harmlessly, since the
 # value was identical) — removed to avoid two sources of truth.
-OLLAMA_MODEL = "muse-glimmer-30b"   # try "gemma4:31b" for max quality, or "muse-glimmer" as an alternative
+OLLAMA_MODEL = "muse-glimmer:30b"   # keep "muse-glimmer:30b" for max quality, or change to a different model as an alternative
 
 SHOW_RAW_ANALYSIS = False   # set True to print Music Flamingo's full raw analysis for debugging
 
