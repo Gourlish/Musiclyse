@@ -3,7 +3,7 @@ An local LLM music-listening client that communicates between Ollama and a multi
 
 ![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
 
-## About:
+# About:
 
 Musiclyse is a Python script that enables local conversations about music. It utilises a multi-step song processing engine linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
 
@@ -121,7 +121,7 @@ Musiclyse: That made my day — glad it landed how you wanted. Always happy to n
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "
 
-## Key features:
+# Key features:
 
 The following features are all included in Musiclyse 0.1:
 
@@ -133,7 +133,7 @@ The following features are all included in Musiclyse 0.1:
 * Run an overnight batch of songs to JSON files that can be fast loaded at a later time
 * Create your own personas and hear their opinions about songs
 
-## Installation (for MacOS):
+# Installation (for MacOS):
 
 1: Ensure Python 3.10 is installed on your system
 
@@ -183,20 +183,165 @@ omnizart download-checkpoints
 python musiclyse-0.1.py
 ```
 
-## Usage:
+# Configurable Variables & Flags
 
-* ```/listen <question>``` -	Analyzes the current track and answers your question.
-* ```/listen <path or URL> <question>``` -		Switches to a new track, then analyses it.
-* ```/save=filename.json``` -		Saves the most recently analysed track's data.
-* ```/load filename.json [question]``` -		Reloads a previously saved track.
-* ```/batch /path/to/folder``` -		Scans every audio file in a folder into /saved-songs. Song scanning is slow, so this is great to run overnight.
-* ```/clear``` -		Wipes the chat history and resets token counters.
-* ```/persona <description>``` -		Changes the chat voice/tone (analysis rules stay the same).
-* ```/persona reset``` -		Restores the default persona.
+Reference list of every user-controllable setting in `musiclyse-0_1b-p3-wiki9.py`.
+
+## Command-line
+
+| Usage | Description |
+|---|---|
+| `python musiclyse.py` | No starting track — pick one with `/listen` |
+| `python musiclyse.py /path/to/song.m4a` | Optional starting track |
+
+## In-chat slash commands
+
+| Command | Description |
+|---|---|
+| `/listen <question>` | Analyse the current track |
+| `/listen <path or URL> <question>` | Switch current track and analyse it |
+| `/relisten` | Force a fresh full analysis even if one is cached |
+| `/correct` | Record a user-confirmed fact that overrides the model's perception |
+| `/save=filename.json` | Save technical details for the most recently scanned track |
+| `/load filename.json [question]` | Load a previously saved track |
+| `/clear` | Wipe chat context + token counters (analysis cache kept) |
+| `/batch /path/to/folder` | Overnight scan every audio file in a folder into `saved-songs/` |
+| `/persona <description>` | Switch chat voice/taste (music evidence rules stay) |
+| `/persona reset` | Restore the default music-obsessed friend persona |
+| `/debug` | Toggle debug output |
+
+## Console / display
+
+| Variable | Default | Description |
+|---|---|---|
+| `FRIENDLY_PROCESSING_DISPLAY` | `True` | Progress-bar-style overwrite vs. old scrolling log |
+| `USE_COLOR` | *(auto)* | Set from `sys.stdout.isatty()` |
+| `SHOW_RAW_ANALYSIS` | `False` | Print Music Flamingo's full raw analysis (debugging) |
+| `DEBUG_MODEL_LOADING` | `False` | Show raw model-loading logs instead of a status line |
+| `SHOW_OMNIZART_LOGS` | `False` | Let Omnizart's stdout/stderr through instead of suppressing it |
+| `DEBUG_STEM_MIDI` | `False` | Verbose per-stem note-count debugging |
+| `SHOW_LAST_WRITER_MESSAGE_ON_DEBUG` | `False` | Show the last writer message when `/debug` is used |
+
+## Ollama / model
+
+| Variable | Default | Description |
+|---|---|---|
+| `OLLAMA_URL` | `http://localhost:11434/api/chat` | Ollama chat endpoint |
+| `OLLAMA_MODEL` | `muse-glimmer:30b-mlx` | Try `gemma4:31b` for max quality, or `muse-glimmer` as an alternative |
+| `OLLAMA_NUM_CTX` | `131072` | Context window size |
+| `OLLAMA_SUPPORTS_IMAGES` | `True` | Whether the chosen model accepts image input |
+| `MF_MODEL_ID` | `nvidia/music-flamingo-hf` | Music Flamingo model ID |
+| `MF_TORCH_DTYPE` | `torch.bfloat16` | Torch dtype for Music Flamingo |
+| `DEMUCS_MODEL` | `htdemucs_6s` | Demucs stem-separation model |
+
+## Analysis pipeline toggles (speed vs. depth)
+
+| Variable | Default | Description |
+|---|---|---|
+| `FAST_MODE` | `False` | Safe speedup: skip self-check pass (one fewer MF generation) |
+| `DEEP_MODE` | `False` | Larger token budgets + two extra analysis categories |
+| `ENABLE_OBJECTIVE_AUDIO_REPORT` | `True` | |
+| `ENABLE_VOCAL_PASS` | `True` | |
+| `ENABLE_VOCAL_OBJECTIVE_REPORT` | `True` | |
+| `ENABLE_VOCAL_CONFIRMATION_PASS` | `True` | |
+| `ENABLE_ESSENTIA_REPORT` | `True` | |
+| `ENABLE_STEM_MIDI` | `True` | |
+| `ENABLE_COVER_ART_DESCRIPTION` | `True` | |
+| `ENABLE_SINGER_IDENTITY_RESOLUTION` | `True` | |
+| `ENABLE_IMAGE_OBSERVATIONS_FOR_GENERAL` | `True` | |
+| `ENABLE_WIKI_CONTEXT` | `True` | |
+| `SKIP_MF_LYRICS_WHEN_TAGS_PRESENT` | `True` | |
+| `COMPACT_OBJECTIVE_REPORT` | `True` | |
+| `STEM_MIDI_INCLUDE_EVENT_LOGS` | `False` | |
+| `STEM_MIDI_COMPACT_EVENT_FORMAT` | `True` | |
+| `UNLOAD_OMNIZART_AFTER_STEM_MIDI` | `True` | |
+
+## Essentia / audio-analysis limits
+
+| Variable | Default | Description |
+|---|---|---|
+| `ESSENTIA_MAX_SECONDS` | `300.0` | |
+| `ESSENTIA_LOWLEVEL_MAX_SECONDS` | `60.0` | |
+| `ESSENTIA_FRAME_SIZE` | `4096` | |
+| `ESSENTIA_HOP_SIZE` | `2048` | |
+
+## Stem/MIDI limits
+
+| Variable | Default | Description |
+|---|---|---|
+| `STEM_MIDI_MAX_SECONDS` | `None` | `None` = full-track MIDI; set a number to cap for speed |
+| `STEM_MIDI_EVENT_LOG_MAX_NOTES` | `24` | |
+| `STEM_MIDI_MELODY_LINE_NOTES` | `24` | |
+| `STEM_MIDI_DRUM_PATTERN_HITS` | `16` | |
+
+## Vocal-classification thresholds
+
+| Variable | Default | Description |
+|---|---|---|
+| `VOCAL_CONFIRMATION_F0_THRESHOLD` | `210.0` | |
+| `VOCAL_CONFIRMATION_WITHOUT_F0` | `True` | |
+| `METADATA_LYRICS_MIN_CHARS_TO_SKIP_MF` | `80` | |
+
+## Metadata / cover art
+
+| Variable | Default | Description |
+|---|---|---|
+| `ENABLE_FILE_METADATA` | `True` | |
+| `SEND_COVER_ART_TO_OLLAMA` | `True` | |
+| `METADATA_MAX_LYRICS_CHARS` | `10000` | |
+| `COVER_IMAGE_MAX_DIMENSION` | `512` | |
+| `COVER_IMAGE_QUALITY` | `"2"` | |
+| `MAX_COVER_IMAGES_PER_REQUEST` | `1` | |
+| `MAX_COVER_BYTES_TO_SEND_RAW` | `1_000_000` | |
+| `MAX_EXPLICIT_IMAGE_BYTES` | `2_000_000` | |
+| `MAX_IMAGES_PER_REQUEST` | `8` | |
+| `MAX_IMAGES_TO_DESCRIBE` | `2` | |
+| `COVER_ART_DESCRIPTION_NUM_CTX` | `8192` | |
+| `SINGER_IDENTITY_NUM_CTX` | `8192` | |
+
+## Chat history / context budget
+
+| Variable | Default | Description |
+|---|---|---|
+| `MAX_WRITER_IMAGES_PER_TURN` | `2` | Images actually sent to Ollama in one request |
+| `MAX_STORED_IMAGES_IN_HISTORY` | `4` | Base64 images kept in `writer_history` |
+| `MAX_WRITER_HISTORY_MESSAGES` | `80` | |
+| `MAX_MESSAGE_CHARS_FOR_OLLAMA` | `60_000` | |
+| `HISTORY_CHAR_BUDGET_FACTOR` | `3.2` | Conservative chars-per-token estimate for trimming |
+
+## Wikipedia context
+
+| Variable | Default | Description |
+|---|---|---|
+| `WIKI_DB_PATH` | `music_wiki.db` | |
+| `WIKI_DB_TIMEOUT_S` | `5.0` | |
+| `WIKI_CONTEXT_MAX_CHARS_PER_ARTICLE` | `1800` | Per-article cap — enough for lead + a track listing or reception section |
+| `WIKI_CONTEXT_TOTAL_MAX_CHARS` | `5000` | Hard ceiling on the whole block regardless of article count |
+| `WIKI_MAX_ARTICLES` | `3` | E.g. song + album + artist article, combined |
+| `WIKI_SEARCH_ROW_LIMIT` | `8` | Slightly wider FTS window so (album) disambiguation can rank |
+| `WIKI_CONTEXT_REFRESH_EVERY_QUESTION` | `False` | |
+| `WIKI_SEARCH_EVERY_MESSAGE` | `True` | |
+
+## Batch mode
+
+| Variable | Default | Description |
+|---|---|---|
+| `BATCH_PAUSE_BETWEEN_TRACKS_S` | `3.0` | Pause between files during `/batch` |
+
+## Persona / prompts
+
+| Variable | Default | Description |
+|---|---|---|
+| `DEFAULT_PERSONA_PROMPT` | *(see script)* | Swappable at runtime via `/persona` |
+| `SAVE_DIR` | `./saved-songs` | |
+
+---
+
+**Not included:** internal data structures such as `NOTE_NAMES`, `GM_DRUM_PITCH_TYPE`, `STEM_MIDI_STEMS`, `OMNIZART_STEM_APP`, the vocal-category tag sets, and the prompt template bodies themselves (e.g. `MF_FULL_ANALYSIS_PROMPT`) — these are technically editable but function as implementation detail rather than user-facing settings.
 
 When the context gets over the user-specified token context window, it will forget context from outside of it.
 
-## Possible future features:
+# Possible future features:
 
 These are a few things that I want to implement in the future but so far haven't done
 
