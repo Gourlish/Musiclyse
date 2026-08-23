@@ -7,9 +7,115 @@ An local LLM music-listening client that communicates between Ollama and a multi
 
 Musiclyse is a Python script that enables local conversations about music. It utilises a multi-step song processing engine linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
 
+Below is an example of a chat in Omnizart 0.2:
+
+```
+You: Yo Musiclyse! I got two tracks for you to ask questions about and compare. I'll send one to you first, then you'll wait for the second before answering my questions.
+  ⏳ Thinking...
+
+Musiclyse: Nice, I'm in. Send the first track over and I'll hold off until you've dropped the second before we compare.
+
+  (tokens: this turn ~2579 [prompt 2355 + reply 224] · session ~2579 · context window 131072)
+
+You: /load cutemloosebruce
+  (loaded saved song '06 Cut em Loose Bruce.m4a' into this session)
+
+You: /load marysgarden I wondered which of these two songs is more melodic?
+  (loaded saved song '09 - Marys Garden.m4a' into this session)
+
+  ⏳ Writing...
+
+Musiclyse: Mary’s Garden is the more openly melodic of the two, in my ears.
+
+Cut ’em Loose Bruce from Happy Mondays is a 1992 Yes, Please! groove — it’s a Shaun Ryder-ish story song with that late-70s/early-90s Madchester bounce, a post-puberty male lead that’s bright and slightly nasal up front, and a sunshine refrain that lands more like a spoken chant than a sung hook. The track is built around the rhythm section and that kind of half-talk, half-melody delivery, with the guitar sitting back in the mix and the whole thing feeling more narrative and dance-floor narrative than sing-along.
+
+Mary’s Garden from The Mock Turtles’ 1990 Turtle Soup sits a little higher in the pocket — around 129 bpm vs the Mondays’ ~99 bpm — and it’s much more chorus-forward. You get that clean, slightly bright male lead asking “Oh Mary, how does your garden grow?” over and over, and the guitars are really out front with a choppy, jangly hook that you can hum straight away. The verses paint the little pictures — ballet horses, crystal bells, pretty maids in china blue — and then the chorus snaps back in a very singable, almost music-hall pop way. The Mock Turtles were part of that early-90s Manchester indie wave that loved a big, memorable refrain, and this is a textbook example.
+
+So if you’re after the one you’ll find yourself humming on the way out the door, it’s the Mock Turtles track. The Mondays track is great for vibe and storytelling, but Mary’s Garden is the more melodic earworm of the pair.
+
+  (tokens: this turn ~15155 [prompt 13741 + reply 1414] · session ~17734 · context window 131072)
+You: How do the two compare in instrumentation and production?
+  ⏳ Thinking...
+
+Musiclyse: They’re built from very different palettes, even though both are that late-80s/early-90s Manchester-adjacent polish.
+
+Cut ’em Loose Bruce is a rhythm-and-brass number. The drums sit right up front — punchy kit, pretty laid-back at ~99 BPM, with a tight, rhythmic electric bass that’s driving almost everything you feel in the low end. The guitar is there but it’s more of a texture, clean with a little overdrive tucked behind the groove. What really makes it pop is the brass — trumpets, trombones, saxes with melodic lines and little stabs that answer the vocal. The mix is wide and well-separated, almost hi-fi for the time, with the lead vocal dry and front-and-center, just a touch of natural room reverb. It feels loose, dance-floor storytelling, with a lot of sub-bass and low-mid weight and a pretty open dynamic range.
+
+Mary’s Garden is much more guitar-first indie pop. It’s quicker, about 129 BPM, and the drums are busy in a different way — crisp hi-hat chatter with a tight kick/snare backbeat that gives it that bouncy, radio-ready pulse. The guitar is the star: jangly, layered, constantly moving, with a bright mid-range presence that the mix leans into. Bass is solid and supportive but stays in a more traditional pop pocket, and there’s no brass at all — just drums, bass, guitars and the lead vocal. Production-wise it’s clean and bright too, but more mid-forward and compressed in the feel, the kind of forward, radio-friendly sheen you get on early-90s indie singles. The vocal is clean and slightly bright, also front-and-center but with a more traditional pop delivery, and the whole thing is tighter and more compact than the Mondays track, which sprawls a bit more around the groove.
+
+So one is funk/dance with horns and a deep groove, the other is jangly guitar-pop with a busy, bouncy drum pulse.
+
+  (tokens: this turn ~16516 [prompt 14974 + reply 1542] · session ~34250 · context window 131072)
+You: What about in terms of mastering?
+  ⏳ Thinking...
+
+Musiclyse: Good question — both sit in that early-90s analog-to-digital transition window, so they’re both pretty open and dynamic, but they read differently on the meters.
+
+Cut ’em Loose Bruce from Happy Mondays’ 1992 Yes, Please! feels a touch more open. The file I’m hearing shows a higher crest factor, about 16.3 dB, which gives you that more dynamic, less squashed master — peaks breathe a bit, the drums and brass have room to hit and then fall back. The overall tonal balance is darker down low, with a big sub-bass and bass footprint and a lot of low-mid weight. The top end is polite, a little airy but not aggressive, which matches the wide stereo imaging and that classic late-80s/early-90s hi-fi feel.
+
+Mary’s Garden from The Mock Turtles’ 1990 Turtle Soup is a little more radio-forward. Crest factor sits around 14.1 dB, so it’s still dynamic for the era, but a touch more contained — you get that slightly tighter, more compressed-for-single feel. It’s brighter overall, with more midrange presence and a little less sub content; the mix leans into the guitars and vocal, and the drums sit a bit hotter in the mix. The stereo image is still wide, but the mastering is a bit more mid-forward and a bit more polished in the top, which helps it cut on radio and smaller speakers.
+
+So in practice: the Mondays track feels a little looser and more spacious, with more low-end weight and dynamic headroom; the Mock Turtles track feels a bit tighter, brighter, and more immediate for single play.
+
+  (tokens: this turn ~16630 [prompt 16277 + reply 353] · session ~50880 · context window 131072)
+You: I hear a somewhat Bowieish sound in Mary's Garden
+  ⏳ Thinking...
+
+Musiclyse: That’s a fun catch — I hear it too.
+
+Mary’s Garden has that early-90s Manchester indie-pop sheen that was chewing on a lot of late-70s pop glam influences. The Mock Turtles were coming out of that 1985 Middleton scene with Martin Coogan at the helm, and by the time Turtle Soup landed in 1990 they were leaning into big, singable choruses and jangly guitars with a slightly theatrical vocal delivery. The track is built around a bright, bouncy guitar hook, a clean slightly bright male lead asking “Oh Mary, how does your garden grow?” and those little music-hall images — crystal bells, pretty maids in china blue, walking under the gazing moon — that give it a storybook, almost Ziggy-era playfulness.
+
+It’s not a direct Bowie quote, but the combination of that chiming guitar, the bouncy 129 bpm pulse, the wry, slightly cheeky lyricism and the big, open chorus is exactly the kind of thing you’d get when a bunch of Manchester kids were digesting Bowie, Roxy Music, and the whole glam-pop lineage via the Madchester filter. The Mock Turtles were famously part of that early-90s indie pop wave that loved a memorable hook and a bit of drama, so the Bowieish sparkle you’re picking up is really that glam-pop sensibility filtered through a 1990 indie rock lens.
+
+Nice ear — it’s that little theatrical, slightly theatrical pop lift that makes the song stick.
+
+  (tokens: this turn ~18623 [prompt 18303 + reply 320] · session ~69503 · context window 131072)
+You: In the case of that Happy Mondays album, it was widely panned by critics
+  ⏳ Thinking...
+
+Musiclyse: Yeah, Yes Please! was a rough landing.
+
+Happy Mondays went out to Barbados in 1991 to record with Chris Frantz and Tina Weymouth at Eddy Grant’s studio. When Yes Please! came out in 1992 it was a commercial failure — it basically helped bankrupt Factory Records — and the critical reception was pretty savage. The press were tired of the excess and the whole “Madchester” hangover, and the album landed with a thud compared to the platinum peak of Pills ’n’ Thrills and Bellyaches.
+
+Cut ’em Loose Bruce is actually one of the brighter moments on that record; the album’s press was mainly negative overall, with reviewers calling the whole thing unfocused and overblown. So you’re right — the album was widely panned, even if that one track still has its fans.
+
+  (tokens: this turn ~20612 [prompt 20435 + reply 177] · session ~90115 · context window 131072)
+You: Even Cut Em Loose Bruce isn't great in my view, and it was probably one of the better songs on the album, which speaks for just how awful Yes Please was
+  ⏳ Thinking...
+
+Musiclyse: Yeah, I hear you. Yes Please! is the Happy Mondays record most fans try to make peace with and then quietly shelve.
+
+By ’92 the whole Madchester moment was already fizzling out — Nevermind had landed, the scene was tired, and the band was in a bad way on and off the road. They went down to Barbados to record with Chris Frantz and Tina Weymouth at Eddy Grant’s studio, and what came back felt loose in all the wrong places. It flopped commercially, it was a big part of what finally bankrupted Factory Records, and the press at the time were pretty brutal about it.
+
+Cut ’em Loose Bruce is the kind of track that ends up being “one of the better ones” by default — it’s got a hook and a bit of that old Mondays swagger, but even that feels a little thin and distracted compared to Pills ’n’ Thrills. When the best song on an album is a shrug, that says it all about where the record is.
+
+It’s wild how much the Mock Turtles’ Turtle Soup from the same era feels more alive in the moment — same Manchester scene, same year-ish window, but Mary’s Garden still wants to be sung along to.
+
+  (tokens: this turn ~23070 [prompt 22177 + reply 893] · session ~113185 · context window 131072)
+You: Anyway, before we go, which Madchester bands sounded closer to the Mock Turtles and which sounded closer to Happy Mondays?
+  ⏳ Thinking...
+
+Musiclyse: That’s a nice way to split the scene up.
+
+The Mock Turtles were really the pop-jangle side of the Manchester bubble. Turtle Soup in 1990 is all clean guitars, big choruses and a music-hall wink — that’s the indie-pop lineage that sits much closer to the more song-focused end of Madchester. Think The Stone Roses when they’re at their melodic, The Charlatans UK with their organ-driven pop, The La’s, The Chameleons in their more romantic moments, and bands on the Imaginary/Rough Trade orbit that wanted a hook first and a groove second. It’s the “sing-along on a sunlit afternoon” end of the scene.
+
+Happy Mondays are the other pole — the baggy/dance-funk side. Shaun Ryder and the crew fused indie guitars with house, funk and northern soul, and their records were constantly being remixed by DJs. That puts them closer to the rave-leaning Manchester acts: 808 State, A Guy Called Gerald, The Shamen, Inspiral Carpets, and that whole Haçienda-driven set where the rhythm section and the dancefloor were the point. Even The Stone Roses sit a bit closer to the Mondays in vibe and attitude than the Mock Turtles do, with their psychedelic, groove-heavy sprawl.
+
+So basically: jangly pop and big choruses — Mock Turtles territory. Loose funk, house-tinged baggy and dance-floor storytelling — Happy Mondays territory.
+
+  (tokens: this turn ~25026 [prompt 24049 + reply 977] · session ~138211 · context window 131072)
+You: Nice talking to you - you got all of that brilliant! It's proof you're working as I intended.
+  ⏳ Thinking...
+
+Musiclyse: That made my day — glad it landed how you wanted. Always happy to nerd out about Madchester with you.
+
+  (tokens: this turn ~25353 [prompt 25254 + reply 99] · session ~163564 · context window 131072)
+```
+
 ## Version history:
 
-* 2026/08/22 - Musiclyse 0.1 released. Its core features are listed in the "key features" section.
+* Coming Soon - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Overall a much better chat experience from the added bank of data.
+* 2026/08/22 - Musiclyse 0.1. Its core features are listed in the "key features" section.
 
 ## System requirements
 
