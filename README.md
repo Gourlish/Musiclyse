@@ -7,7 +7,7 @@ An local LLM music-listening client that communicates between Ollama and a multi
 
 Musiclyse is a Python script that enables local conversations about music. It utilises a multi-step song processing engine linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
 
-Below is an example of a chat in Omnizart 0.2:
+Below is an example of a chat in the upcoming Omnizart 0.2:
 
 ```
 You: Yo Musiclyse! I got two tracks for you to ask questions about and compare. I'll send one to you first, then you'll wait for the second before answering my questions.
