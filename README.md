@@ -65,7 +65,13 @@ pip install huggingface_hub
 hf download nvidia/music-flamingo-hf
 ```
 
-8: Run the software:
+8: Download Omnizart models:
+
+```
+omnizart download-checkpoints
+```
+
+9: Run the software:
 
 ```
 python musiclyse-0.1.py
