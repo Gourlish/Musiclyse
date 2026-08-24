@@ -9,7 +9,7 @@ Musiclyse is a Python script that enables local conversations about music. It ut
 
 ## Version history:
 
-* Coming Soon - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved BPM and instrument recognition. Overall a much better chat experience from the added bank of data.
+* Coming Soon - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved batch processing optimisations to make crashes on Macs with 64GB RAM less likely. Improved BPM and instrument recognition. Overall a much better chat experience from the added bank of data.
 * 2026/08/22 - Musiclyse 0.1. Its core features are listed in the "key features" section.
 
 
