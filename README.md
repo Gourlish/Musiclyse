@@ -9,7 +9,7 @@ Musiclyse is a Python script that enables local conversations about music. It ut
 
 ## Version history:
 
-* Coming Soon - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved batch processing optimisations to make crashes on Macs with 64GB RAM less likely. Improved BPM and instrument recognition. Overall a much better chat experience from the added bank of data.
+* 2026/08/24 - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved batch processing optimisations to make crashes on Macs with 64GB RAM less likely. Improved BPM and instrument recognition. Overall a much better chat experience from the added bank of data. Is now set to use muse-glimmer:30b-mlx by default, which significantly improves LLM processing times on MacOS. If using Linux (or Windows if you can get it working), change to the non-MLX version or a different version.
 * 2026/08/22 - Musiclyse 0.1. Its core features are listed in the "key features" section.
 
 
@@ -141,6 +141,8 @@ The following features are all included in Musiclyse 0.1:
 
 2: Clone the provided files onto your machine for the latest version, or alternatively download a version from the Releases section.
 
+3: [Install the Musiclyse Wikipedia Database via this link](https://github.com/Gourlish/Musiclyse-Wikipedia-Database/releases/tag/v0.2) (it will run without it, but it's likely to give far better context about artists if you install it).
+
 3: Install required system level dependencies (if you don't already have Homebrew installed you'll need it too)
 
 ```
@@ -187,7 +189,7 @@ python musiclyse-0.1.py
 
 # Configurable Variables & Flags
 
-Reference list of every user-controllable setting in `musiclyse-0_1b-p3-wiki9.py`.
+Reference list of every user-controllable setting in `musiclyse-0.2.py`.
 
 ## Command-line
 
@@ -195,6 +197,7 @@ Reference list of every user-controllable setting in `musiclyse-0_1b-p3-wiki9.py
 |---|---|
 | `python musiclyse.py` | No starting track — pick one with `/listen` |
 | `python musiclyse.py /path/to/song.m4a` | Optional starting track |
+| `python musiclyse.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker (used by `/batch`) |
 
 ## In-chat slash commands
 
