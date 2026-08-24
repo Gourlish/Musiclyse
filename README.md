@@ -1,11 +1,11 @@
 # Musiclyse
-A highly configurable piece of local chatbot software that can "listen" to music via a multi-step analysis pipeline, compare tracks and more.
+A highly configurable piece of local chatbot software that can "listen" to music via a multi-step analysis engine, compare tracks and more.
 
 ![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
 
 # About:
 
-Musiclyse is a Python script that enables local conversations about music. It utilises a multi-step song processing engine linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
+Musiclyse is a Python script that enables local conversations about music. It utilises a multi-step song processing pipeline linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
 
 ## Version history:
 
