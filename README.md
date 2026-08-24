@@ -351,8 +351,6 @@ When the context gets over the user-specified token context window, it will forg
 These are a few things that I want to implement in the future but so far haven't done
 
 * Separate the configuration flags from the main script in a different file
-* A Wikipedia-based database about music adjacent topics to expand the local LLM's knowledge; this will likely add an approximately 1GB overhead, but will be an optional feature
-* Improved BPM recognition. The BPM recognition in 0.1 isn't bad but often off by 1-2 values
 * Improved melody detection. I've had to limit the amount of MIDI data the JSON file stores to avoid excessive token bloat (it's still relatively high as is), and might look at better algorithms for which it can capture the melody of songs to "hear" the music.
 * *Most of the project was vibecoded with the help of several LLMs, and while the current build appears to be fully usable, those with better coding knowledge could probably help patch any issues.
 
