@@ -139,7 +139,7 @@ The following features are all included in Musiclyse 0.1:
 
 1: Ensure Python 3.10 is installed on your system
 
-2: Clone the provided files onto your machine
+2: Clone the provided files onto your machine for the latest version, or alternatively download a version from the Releases section.
 
 3: Install required system level dependencies (if you don't already have Homebrew installed you'll need it too)
 
