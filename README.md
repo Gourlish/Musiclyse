@@ -26,7 +26,7 @@ The following features are all included in Musiclyse 0.2:
 * 2026/08/22 - Musiclyse 0.1. Beat, melody, genre, vocal, song key, scale and era analysis. There are currently some minor accuracy issues which I am hoping to improve. Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat. Supports image analysis (if used with an image-supporting model). LLMs can be swapped out easily in the script. Currently it is optimised for use with Muse Glimmer 30B; for less powerful systems Gemma 4 26B is recommended. Save your analysed song data to JSON files, then load them quickly in a new session. Run an overnight batch of songs to JSON files that can be fast loaded at a later time. Create your own personas and hear their opinions about songs.
 
 
-Below is an example of a chat in the upcoming Omnizart 0.2:
+Below is an example of a chat in Musiclyse 0.2:
 
 ```
 You: Yo Musiclyse! I got two tracks for you to ask questions about and compare. I'll send one to you first, then you'll wait for the second before answering my questions.
