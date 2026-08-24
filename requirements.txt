@@ -54,6 +54,7 @@ lameenc==1.8.4
 safetensors==0.8.0
 einops==0.8.2
 sphn==0.2.1
+panns-inference=0.1.1
 
 # (transformers / huggingface_hub stack)
 huggingface_hub==1.27.0
