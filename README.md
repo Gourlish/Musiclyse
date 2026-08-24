@@ -1,5 +1,5 @@
 # Musiclyse
-An local LLM music-listening client that communicates between Ollama and a multi-step music analysis engine to "hear" music and discuss songs.
+A highly configurable piece of local chatbot software that can "listen" to music via a multi-step analysis pipeline, compare tracks and more.
 
 ![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
 
