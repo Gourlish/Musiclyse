@@ -233,7 +233,7 @@ Reference list of every user-controllable setting in `musiclyse-0.2.py`.
 | Variable | Default | Description |
 |---|---|---|
 | `OLLAMA_URL` | `http://localhost:11434/api/chat` | Ollama chat endpoint |
-| `OLLAMA_MODEL` | `muse-glimmer:30b-mlx` | Try `gemma4:31b` for max quality, or `muse-glimmer` as an alternative |
+| `OLLAMA_MODEL` | `muse-glimmer:30b-mlx` | Allows you to set your model |
 | `OLLAMA_NUM_CTX` | `131072` | Context window size |
 | `OLLAMA_SUPPORTS_IMAGES` | `True` | Whether the chosen model accepts image input |
 | `MF_MODEL_ID` | `nvidia/music-flamingo-hf` | Music Flamingo model ID |
