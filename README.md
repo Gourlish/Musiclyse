@@ -7,10 +7,23 @@ A highly configurable piece of local Ollama-based chatbot software that can "lis
 
 Musiclyse is a Python script that enables local conversations about music. It utilises a multi-step song processing pipeline linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
 
+# Key features:
+
+The following features are all included in Musiclyse 0.2:
+
+* Beat, melody, genre, vocal, song key, scale and era analysis. There are still some minor accuracy issues which I am hoping to improve.
+* Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
+* Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat.
+* Supports image analysis (if used with an image-supporting model).
+* LLMs can be swapped out easily in the script. Currently it is optimised for use with Muse Glimmer 30B; for less powerful systems Gemma 4 26B is recommended.
+* Save your analysed song data to JSON files, then load them quickly in a new session.
+* Run an overnight batch of songs to JSON files that can be fast loaded at a later time.
+* Create your own personas and hear their opinions about songs.
+
 ## Version history:
 
-* 2026/08/24 - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved batch processing optimisations to make crashes on Macs with 64GB RAM less likely. Improved BPM and instrument recognition. Overall a much better chat experience from the added bank of data. Is now set to use muse-glimmer:30b-mlx by default, which significantly improves LLM processing times on MacOS. If using Linux (or Windows if you can get it working), change to the non-MLX version or a different version.
-* 2026/08/22 - Musiclyse 0.1. Its core features are listed in the "key features" section.
+* 2026/08/24 - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved batch processing optimisations to make crashes on Macs with 64GB RAM less likely. Improved BPM and instrument recognition (though there may still be some minor accuracy issues). Overall a much better chat experience from the added bank of data. Is now set to use muse-glimmer:30b-mlx by default, which significantly improves LLM processing times on MacOS. If using Linux (or Windows if you can get it working), change to the non-MLX version or a different version.
+* 2026/08/22 - Musiclyse 0.1. Beat, melody, genre, vocal, song key, scale and era analysis. There are currently some minor accuracy issues which I am hoping to improve. Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat. Supports image analysis (if used with an image-supporting model). LLMs can be swapped out easily in the script. Currently it is optimised for use with Muse Glimmer 30B; for less powerful systems Gemma 4 26B is recommended. Save your analysed song data to JSON files, then load them quickly in a new session. Run an overnight batch of songs to JSON files that can be fast loaded at a later time. Create your own personas and hear their opinions about songs.
 
 
 Below is an example of a chat in the upcoming Omnizart 0.2:
@@ -122,18 +135,6 @@ Musiclyse: That made my day — glad it landed how you wanted. Always happy to n
 ## System requirements
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "
-
-# Key features:
-
-The following features are all included in Musiclyse 0.1:
-
-* Beat, melody, genre, vocal, song key, scale and era analysis. There are currently some minor accuracy issues which I am hoping to improve.
-* Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat.
-* Supports image analysis (if used with an image-supporting model)
-* LLMs can be swapped out easily in the script. Currently it is optimised for use with Muse Glimmer 30B; for less powerful systems Gemma 4 26B is recommended
-* Save your analysed song data to JSON files, then load them quickly in a new session
-* Run an overnight batch of songs to JSON files that can be fast loaded at a later time
-* Create your own personas and hear their opinions about songs
 
 # Installation (for MacOS):
 
