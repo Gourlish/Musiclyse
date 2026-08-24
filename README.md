@@ -185,7 +185,7 @@ omnizart download-checkpoints
 9: Run the software:
 
 ```
-python musiclyse-0.1.py
+python musiclyse-0.2.py
 ```
 
 # Configurable Variables & Flags
