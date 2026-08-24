@@ -1,5 +1,5 @@
 # Musiclyse
-A highly configurable piece of local chatbot software that can "listen" to music via a multi-step analysis engine, compare tracks and more.
+A highly configurable piece of local Ollama-based chatbot software that can "listen" to music via a multi-step analysis engine, compare tracks and more.
 
 ![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
 
