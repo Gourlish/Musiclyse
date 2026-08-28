@@ -193,8 +193,6 @@ python musiclyse-0.3.py
 
 # Configurable Variables & Flags in 0.3
 
-Reference list of every user-controllable setting in `musiclyse-0.2-dev58.py`.
-
 ## Command-line
 
 | Usage | Description |
