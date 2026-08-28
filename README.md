@@ -150,7 +150,7 @@ Due to the nature of what it's doing, it's intended to be run on powerful machin
 3: Install required system level dependencies (if you don't already have Homebrew installed you'll need it too)
 
 ```
-brew install ollama ffmpeg
+brew install ollama ffmpeg portaudio
 ```
 
 4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.1.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
