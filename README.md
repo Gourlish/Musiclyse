@@ -407,7 +407,7 @@ These are a few things that I want to implement in the future but so far haven't
 * Separate the configuration flags from the main script in a different file
 * Improved melody detection. I've had to limit the amount of MIDI data the JSON file stores to avoid excessive token bloat (it's still relatively high as is), and might look at better algorithms for which it can capture the melody of songs to "hear" the music.
 * Most of the project was vibecoded with the help of several LLMs, and while the current build appears to be fully usable, those with better coding knowledge could probably help patch any issues.
-* Implement improved AI lyric transcription, possibly via a Whisper model
+* Implement improved AI lyric transcription via a Whisper model (coming in 0.4)
 * Improved estimated era accuracy for songs without a year tag
 
 
