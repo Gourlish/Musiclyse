@@ -398,14 +398,14 @@ python musiclyse-0.3.py
 
 **Not included:** internal data structures such as `NOTE_NAMES`, `GM_DRUM_PITCH_TYPE`, `STEM_MIDI_STEMS`, `OMNIZART_STEM_APP`, the vocal‑category tag sets, and the prompt template bodies themselves (e.g. `MF_FULL_ANALYSIS_PROMPT`) — these are technically editable but function as implementation detail rather than user‑facing settings.
 
-When the context gets over the user-specified token context window, it will forget context from outside of it.
+When the context gets over the user-specified token context window, it will forget conversation context from outside of it, however will not forget currently loaded songs and images.
 
 # Possible future features:
 
 These are a few things that I want to implement in the future but so far haven't done
 
 * Separate the configuration flags from the main script in a different file
-* Improved melody detection. I've had to limit the amount of MIDI data the JSON file stores to avoid excessive token bloat (it's still relatively high as is), and might look at better algorithms for which it can capture the melody of songs to "hear" the music.
+* Improved melody detection. I've had to limit the amount of MIDI data the JSON file stores to avoid excessive token bloat (it's still relatively high as is), and might look at better algorithms for which it can capture the melody of songs to "hear" the music. (coming in 0.4, via the option to transcribe all MIDI notes in a track at the expense of higher LLM token usage)
 * Most of the project was vibecoded with the help of several LLMs, and while the current build appears to be fully usable, those with better coding knowledge could probably help patch any issues.
 * Implement improved AI lyric transcription via a Whisper model (coming in 0.4)
 * Improved estimated era accuracy for songs without a year tag
