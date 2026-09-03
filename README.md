@@ -139,7 +139,7 @@ Musiclyse: That made my day — glad it landed how you wanted. Always happy to n
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
 
-# Installation for 0.3 (for MacOS):
+# Installation for 0.4 (for MacOS):
 
 1: Ensure Python 3.10 is installed on your system
 
@@ -172,11 +172,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-7: Install Music Flamingo:
+7: Install Music Flamingo, Whisper Large V3 and CLAP:
 
 ```
 pip install huggingface_hub
 hf download nvidia/music-flamingo-hf
+hf download openai/whisper-large-v3 --include "model.safetensors" "*.json" "*.txt"
+python -c "from transformers import ClapModel, ClapProcessor; ClapProcessor.from_pretrained('laion/larger_clap_music_and_speech'); ClapModel.from_pretrained('laion/larger_clap_music_and_speech')"
 ```
 
 8: Download Omnizart models:
