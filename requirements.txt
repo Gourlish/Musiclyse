@@ -25,7 +25,7 @@ mutagen==1.47.0          # <- VERSION UNCONFIRMED, see note below
 
 # --- ESSENTIA ----------------------------------------------------------------
 
-essentia
+essentia==2.1b6.dev1389
 
 # --- Stem/MIDI stack (ENABLE_STEM_MIDI) --------------------------------------
 demucs==4.1.0
