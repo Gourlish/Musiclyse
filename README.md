@@ -9,7 +9,7 @@ Musiclyse is a Python script designed for high-spec Macs (it is easily portable 
 
 # Key features:
 
-The following features are all included in Musiclyse 0.3:
+The following features are all included in Musiclyse 0.4:
 
 * Beat, melody, genre, vocal, song key, scale and era analysis. Accuracy for many things has been significantly improved in 0.3.
 * Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
@@ -18,8 +18,8 @@ The following features are all included in Musiclyse 0.3:
 * LLMs can be swapped out easily in the script. Currently it is optimised for use with Muse Glimmer 30B; for less powerful systems Gemma 4 26B is recommended.
 * Save your analysed song data to JSON files, then load them quickly in a new session.
 * Run an overnight batch of songs to JSON files that can be fast loaded at a later time.
-* Create your own personas and hear their opinions about songs.
-* Import two tracks together to compare them easily.
+* Create your own personas and hear their opinions about songs, as well as testing their knowledge.
+* Import two tracks together to compare them easily via both musical and sonic signature analysis.
 * Specify a range (x seconds to y seconds) in a track to analyse for faster processing and more precise analysis.
 
 ## Version history:
