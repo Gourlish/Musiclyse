@@ -13,7 +13,7 @@ Musiclyse is a Python script designed for high-spec Macs (it is easily portable 
 
 The following features are all included in Musiclyse 0.4:
 
-* Beat, melody, genre, vocal, song key, scale and era analysis. Accuracy for many things has been significantly improved in 0.3.
+* Beat, melody, genre, vocal, song key, scale and era analysis. Accuracy for many things has been significantly improved in 0.3 and 0.4.
 * Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
 * Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat.
 * Supports image analysis (if used with an image-supporting model).
