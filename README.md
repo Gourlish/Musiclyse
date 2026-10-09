@@ -3,6 +3,7 @@ A highly configurable piece of local AI chatbot software that can "listen" to mu
 
 ![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
 
+![Musiclyse - Screenshot](https://gourlish.altervista.org/musiclyse/Musiclyse04.png) 
 
 # About:
 
