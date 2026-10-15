@@ -1,7 +1,13 @@
 # Musiclyse
 A highly configurable piece of local AI chatbot software that can "listen" to music via a multi-step analysis engine, compare tracks and more.
 
-![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.png)
+![Musiclyse - Local Music Discussion](https://gourlish.altervista.org/musiclyse/musiclyselogo.svg)
+
+![The Free Music Analyser](https://gourlish.altervista.org/musiclyse/slogan.svg)
+
+![Chat About Your Songs](https://gourlish.altervista.org/musiclyse/chat.svg)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/local.svg)
 
 ![Musiclyse - Screenshot](https://gourlish.altervista.org/musiclyse/Musiclyse04.png) 
 
