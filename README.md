@@ -11,9 +11,9 @@ Musiclyse is a Python script designed for high-spec Macs (it is easily portable 
 
 # Key features:
 
-The following features are all included in Musiclyse 0.4:
+The following features are all included in Musiclyse 0.5:
 
-* Beat, melody, genre, vocal, song key, scale and era analysis. Accuracy for many things has been significantly improved in 0.3 and 0.4.
+* Beat, melody, genre, vocal, song key, song structure, scale and era analysis. Accuracy for many things has been significantly improved since 0.3.
 * Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
 * Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat.
 * Supports image analysis (if used with an image-supporting model).
@@ -23,9 +23,11 @@ The following features are all included in Musiclyse 0.4:
 * Create your own personas and hear their opinions about songs, as well as testing their knowledge.
 * Import two tracks together to compare them easily via both musical and sonic signature analysis.
 * Specify a range (x seconds to y seconds) in a track to analyse for faster processing and more precise analysis.
+* Export your .json files to specially formatted .txt files, allowing any general purpose LLM to "listen" to music. You can do this via musiclyse_export.py.
 
 ## Version history:
 
+* 2026/10/15 - Musiclyse 0.5. Details coming soon.
 * 2026/09/03 - Musiclyse 0.4. Implemented Whisper transcription for lyrics, replacing Music Flamingo for this task (you will need to download a new model). Added CLAP embeddings to further help determine song similarity in comparisons (this also requires a new model). Further refined instrument and melody recognition capabilities. Improved song structure recognition with more accurate timestamps. Further refined vocalist recognition capabilities. Musiclyse can now talk about where instruments are in a track and output drum grooves. Implemented a flag in the script for full MIDI analysis (at the expense of using more tokens). Fixed an issue that was truncating the middle of the system prompts, reducing output accuracy (if your token context window is set too low, you will now see a warning about prompt truncation on startup). Fixed an issue that was causing all tracks to be treated as mono. Implemented mode detection for analysed songs. Improved custom persona functionality so that custom personas are much less likely to know about things they would not be aware of, while still being able to talk about topics they are aware of. Improved era detection for songs without metadata. Reduced the likelyhood of a couple of other Music Flamingo/Qwen 2.5 7B hallucination bugs. Wikipedia database lookup logic has been noticeably improved as a result of debugging (it uses the same database as 0.3), and now produces relevant results for both songs when comparing tracks. Fixed problems with guitar being wrongly identified as not present, and organ incorrectly identified. Fixed filename import and .json extension requirement issues with /loadcompare. Fixed Ollama caching problem to make long conversations faster (this may cause old messages to disappear from the context suddenly rather than "fade" away. Fixed a bug that caused the script to crash when loading a model without vision support, or when loading an invalid model. Fixed a problem whereby the script would crash on song or image import where running with a non-vision capable output LLM. Fixed a problem whereby the script would crash if a non-valid output model was defined.
 * 2026/08/28 - Musiclyse 0.3. Larger Wikipedia database (optional). Proper database search implementation, meaning much less lookup latency. Vastly strengthened lyric transcription hallucinations in Music Flamingo's Qwen 2.5 7B (though may transcribe fewer lyrics). Improved song import context reasoning. Improved track instrument recognition. Improved multi-voice recognition. Improved genre recognition. Improved BPM recognition. Fixed issue with phantom instruments being detected on subsequent tracks without them where they were present in the first track of a conversation. Musiclyse can now talk about the loudness of music in LUFS as well as dynamics crest factor. Improved vocal age range classification logic. Fixed problem that was only analysing vocal range for first 30 seconds. Prevented the Wikipedia and native LLM logic bases from using their knowledge of an artist to influence their description of the style of an analysed song, while still being able to talk about the artist. Files can now be loaded and saved with spaces and non-standard characters. Batch saves now use an "Artist Name - Song Name" naming structure. Wikipedia context is now cleared on /clear command. Added /clearall command to also purge cached songs. You can now /listen and analyse a specified second range of a track for increased speed and accuracy. The batch processing crash issues on Macs with 64GB RAM have now been properly fixed. Fixed a problem where the LLM did not recognise other musicians that the model was capable of recognising from images mid-conversation. IMPORTANT NOTE - Due to how prone Music Flamingo was to hallucinating on lyric transcriptions, I have implemented strict transcription guardrails that now commonly result in it not outputting lyrics at all, so make sure your files have lyric metadata to allow the LLM to talk about lyrics on a track! I intend to implement an alternative transcription model on a future release.
 * 2026/08/24 - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved batch processing optimisations to make crashes on Macs with 64GB RAM less likely. Improved BPM and instrument recognition (though there may still be some minor accuracy issues). Overall a much better chat experience from the added bank of data. Is now set to use muse-glimmer:30b-mlx by default, which significantly improves LLM processing times on MacOS. If using Linux (or Windows if you can get it working), change to the non-MLX version or a different version.
@@ -142,7 +144,7 @@ Musiclyse: That made my day — glad it landed how you wanted. Always happy to n
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
 
-# Installation for 0.4 (for MacOS):
+# Installation for 0.5 (for MacOS):
 
 1: Ensure Python 3.10 is installed on your system
 
@@ -193,227 +195,313 @@ omnizart download-checkpoints
 9: Run the software:
 
 ```
-python musiclyse-0.3.py
+python musiclyse-0.5.py
 ```
 
-# Configurable Variables & Flags in 0.3
+# Configurable Variables & Flags in Musiclyse 0.5
+
+This reference is updated for `musiclyse-0.5.py`. Most configurable settings are Python constants in the `USER CONFIGURATION` section; change values there and restart Musiclyse. These are script settings, not environment variables unless noted. A few automatically detected or runtime-only values are identified as such.
 
 ## Command-line
 
 | Usage | Description |
 |---|---|
-| `python musiclyse.py` | No starting track — pick one with `/listen` |
-| `python musiclyse.py /path/to/song.m4a` | Optional starting track |
-| `python musiclyse.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker (used by `/batch`) |
-| `python musiclyse.py --batch-one-analyze /path/to/song.mp3 /tmp/staging.json` | Internal: heavy analysis stage (split-process batch) |
-| `python musiclyse.py --batch-one-finish /tmp/staging.json` | Internal: identity/save stage (split-process batch) |
+| `python musiclyse.py` | Start without a track; choose one with `/listen`. |
+| `python musiclyse.py /path/to/song.m4a` | Start with a local audio file. A URL can also be supplied where supported. |
+| `python musiclyse.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker used by `/batch`. |
+| `python musiclyse.py --batch-one-analyze /path/to/song.mp3 /tmp/staging.json` | Internal: heavy-analysis stage for split-process batch mode. |
+| `python musiclyse.py --batch-one-finish /tmp/staging.json` | Internal: identity/save stage for split-process batch mode. |
 
 ## In-chat slash commands
 
 | Command | Description |
 |---|---|
-| `/listen <question>` | Analyse the current track |
-| `/listen <path or URL> <question>` | Switch current track and analyse it |
-| `/relisten` | Force a fresh full analysis even if one is cached |
-| `/correct field=value[, field=value…]` | Record a user-confirmed fact that overrides the model's perception (e.g. `year=1966`, `singer=post_puberty_male`) |
-| `/save=filename.json` | Save technical details for the most recently scanned track |
-| `/load filename.json [question]` | Load a previously saved track; optional question after the filename |
-| `/loadcompare "track1.json" "track2.json" question` | Load two or more saved tracks and ask a comparison question about all of them |
-| `/clear` | Wipe chat context + token counters (analysis cache kept) |
-| `/clearall` | Wipe chat + in‑memory track analysis caches (saved‑song files on disk are kept) |
-| `/batch /path/to/folder` | Overnight scan every audio file in a folder into `saved-songs/` (does not import into chat) |
-| `/persona <description>` | Switch chat voice/taste (music evidence rules stay) |
-| `/persona reset` | Restore the default music‑obsessed friend persona |
-| `/debug` | Show the last writer message (debug) |
+| `/listen <question>` | Analyse the current track; the first full analysis is cached for follow-up questions. |
+| `/listen <path or URL> <question>` | Switch to another track and analyse it. |
+| `/listen <path> [start-end] <question>` | Analyse an audio excerpt, with the window in seconds; e.g. `/listen song.mp3 [30-60] analyse the solo`. An excerpt cannot be saved as a full-track scan. |
+| `/relisten [<path or URL>] <question>` | Force a fresh full analysis instead of reusing the cache; a path/URL can be supplied to switch tracks. |
+| `/correct field=value[, field=value…]` | Record a user-confirmed fact that overrides the analysis for the current track (e.g. `/correct year=1966`). |
+| `/save=filename.json` | Save technical details for the most recently scanned full track in `saved-songs/` (or the configured `SAVE_DIR`). |
+| `/load filename.json [question]` | Load a saved track; the question is optional. Names with spaces and punctuation are supported. |
+| `/loadcompare "track1.json" "track2.json" question` | Load two or more saved tracks together and ask a comparison question. Saved CLAP embeddings can add sonic-similarity evidence when available. |
+| `/batch /path/to/folder` | Scan audio files in a folder to JSON files in `saved-songs/`; does not import them into chat and skips files already saved. |
+| `/clear` | Wipe chat context and reset session token counters; keep in-memory track analyses. |
+| `/clearall` | Wipe chat context and in-memory track analyses. JSON files on disk are kept and can still be loaded. |
+| `/persona <description>` | Set the writer's chat voice/taste; music-evidence rules stay in force. |
+| `/persona` | Show the current persona. |
+| `/persona reset` | Restore the default music-obsessed-friend persona (`default` also works). |
+| `/debug` | Show debug information, including the most recent writer message. |
+| `quit` | Exit the application. |
 
 ## Console / display
 
 | Variable | Default | Description |
-|---|---|---|
-| `FRIENDLY_PROCESSING_DISPLAY` | `True` | Progress‑bar‑style overwrite vs. old scrolling log |
-| `USE_COLOR` | *(auto)* | Set from `sys.stdout.isatty()` |
-| `SHOW_RAW_ANALYSIS` | `False` | Print Music Flamingo's full raw analysis (debugging) |
-| `DEBUG_MODEL_LOADING` | `False` | Show raw model‑loading logs instead of a status line |
-| `SHOW_OMNIZART_LOGS` | `False` | Let Omnizart's stdout/stderr through instead of suppressing it |
-| `DEBUG_STEM_MIDI` | `False` | Verbose per‑stem note‑count debugging |
-| `SHOW_LAST_WRITER_MESSAGE_ON_DEBUG` | `False` | Show the last writer message when `/debug` is used |
+|---|---:|---|
+| `FRIENDLY_PROCESSING_DISPLAY` | `True` | Use a compact, progress-bar-style display instead of a scrolling log. |
+| `USE_COLOR` | Automatic | Enables terminal colour when `sys.stdout.isatty()` is true. This is detected by the script, not a normal user-config constant. |
+| `SHOW_RAW_ANALYSIS` | `False` | Print Music Flamingo's full raw analysis for debugging. |
+| `DEBUG_MODEL_LOADING` | `False` | Show raw model-loading logs instead of a status line. |
+| `SHOW_OMNIZART_LOGS` | `False` | Allow Omnizart stdout/stderr through instead of suppressing it. |
+| `DEBUG_STEM_MIDI` | `False` | Print verbose per-stem note-count debugging. |
 
-## Ollama / model
-
-| Variable | Default | Description |
-|---|---|---|
-| `OLLAMA_URL` | `http://localhost:11434/api/chat` | Ollama chat endpoint |
-| `OLLAMA_MODEL` | `muse-glimmer:30b-mlx` | Allows you to set your model |
-| `OLLAMA_NUM_CTX` | `131072` | Context window size |
-| `OLLAMA_SUPPORTS_IMAGES` | `True` | Whether the chosen model accepts image input |
-| `MF_MODEL_ID` | `nvidia/music-flamingo-hf` | Music Flamingo model ID |
-| `MF_TORCH_DTYPE` | `torch.bfloat16` | Torch dtype for Music Flamingo |
-| `DEMUCS_MODEL` | `htdemucs_6s` | Demucs stem‑separation model |
-| `DEMUCS_SHIFTS_FAST` | `0` | Test‑time shift ensembling in fast mode (0 = off) |
-| `DEMUCS_SHIFTS_DEEP` | `2` | Test‑time shift ensembling in deep mode (2 = extra shifts) |
-
-## Analysis pipeline toggles (speed vs. depth)
+## Ollama / model settings
 
 | Variable | Default | Description |
 |---|---|---|
-| `FAST_MODE` | `False` | Safe speedup: skip self‑check pass (one fewer MF generation) |
-| `DEEP_MODE` | `False` | Larger token budgets + two extra analysis categories |
-| `ENABLE_OBJECTIVE_AUDIO_REPORT` | `True` | |
-| `ENABLE_VOCAL_PASS` | `True` | |
-| `ENABLE_VOCAL_OBJECTIVE_REPORT` | `True` | |
-| `ENABLE_VOCAL_CONFIRMATION_PASS` | `True` | |
-| `ENABLE_ESSENTIA_REPORT` | `True` | |
-| `ENABLE_STEM_MIDI` | `True` | |
-| `ENABLE_COVER_ART_DESCRIPTION` | `True` | |
-| `ENABLE_SINGER_IDENTITY_RESOLUTION` | `True` | |
-| `ENABLE_IMAGE_OBSERVATIONS_FOR_GENERAL` | `True` | |
-| `ENABLE_WIKI_CONTEXT` | `True` | |
-| `SKIP_MF_LYRICS_WHEN_TAGS_PRESENT` | `True` | |
-| `COMPACT_OBJECTIVE_REPORT` | `True` | |
-| `STEM_MIDI_INCLUDE_EVENT_LOGS` | `False` | |
-| `STEM_MIDI_COMPACT_EVENT_FORMAT` | `True` | |
-| `UNLOAD_OMNIZART_AFTER_STEM_MIDI` | `True` | |
-| `ENABLE_INSTRUMENT_TAGGING` | `True` | Per‑stem instrument tagging (requires `panns-inference`) |
-| `ENABLE_WHOLE_MIX_INSTRUMENT_TAGGING` | `True` | Instrument tagging on the original mix (independent of Demucs) |
-| `ENABLE_GENRE_MOOD_TAGGING` | `True` | Genre/mood cross‑check using the same PANNs classifier |
+| `OLLAMA_URL` | `http://localhost:11434/api/chat` | Ollama chat endpoint. |
+| `OLLAMA_MODEL` | `muse-glimmer:30b-mlx` | Writer model used for the final response and general chat. Pull this model in Ollama, or change the name to another installed model. |
+| `OLLAMA_NUM_CTX` | `131072` | Context-window size requested from Ollama. |
+| `OLLAMA_SUPPORTS_IMAGES` | `True` | Whether the selected writer model is treated as accepting image input. |
+| `OLLAMA_INTERACTIVE_KEEP_ALIVE` | `"30m"` | How long Ollama keeps the interactive writer model loaded after a request. |
+| `MF_MODEL_ID` | `nvidia/music-flamingo-hf` | Hugging Face model ID for Music Flamingo, the audio-listening model. |
+| `MF_TORCH_DTYPE` | `torch.bfloat16` | PyTorch data type for Music Flamingo. |
+| `WHISPER_MODEL_ID` | `openai/whisper-large-v3` | Whisper model used for lyric transcription/timing. |
+| `WHISPER_TORCH_DTYPE` | `torch.float16` | PyTorch data type for Whisper. |
+| `DEMUCS_MODEL` | `htdemucs_6s` | Demucs source-separation model. |
+| `DEMUCS_SHIFTS_FAST` | `0` | Demucs test-time shifts in fast mode (`0` disables shift ensembling). |
+| `DEMUCS_SHIFTS_DEEP` | `2` | Demucs test-time shifts in deep mode. More shifts can improve separation at additional cost. |
+| `MF_EMPTY_RETRY_SYSTEM_PROMPT` | `True` | Retry Music Flamingo's main pass with the full instructions as a system prompt if the first answer is empty. Adds a generation only for affected tracks. |
+| `MF_EMPTY_RETRY_ADD_DESCRIPTION` | `True` | Add a description pass if that recovery answer lacks enough descriptive fields. Adds a generation only for affected tracks. |
+| `MF_LOOP_GUARD` | `True` | Stop runaway repetitive lines in Music Flamingo's main report so other fields can be produced. |
+| `UNLOAD_OMNIZART_AFTER_STEM_MIDI` | `True` | Unload Omnizart after stem/MIDI transcription to reduce memory use. |
+| `OMNIZART_MUSIC_MODEL_BY_STEM` | `{"bass": None, "guitar": None, "piano": None, "other": None}` | Optional Omnizart mode/checkpoint override per stem. `None` keeps the default model; only use modes/checkpoints installed in your Omnizart setup. |
 
-## Instrument‑tagging thresholds (PANNs / AudioSet)
+## Analysis pipeline toggles (speed, depth and report content)
 
 | Variable | Default | Description |
-|---|---|---|
-| `INSTRUMENT_TAG_MIN_PROB` | `0.18` | Minimum probability for most instrument labels |
-| `INSTRUMENT_TAG_TOP_K` | `4` | Maximum number of instrument tags to keep per stem |
-| `INSTRUMENT_TAG_GUITAR_MIN_PROB` | `0.35` | Higher threshold for guitar‑family labels (noisy) |
-| `INSTRUMENT_TAG_GUITAR_LABELS` | `("electric guitar", …)` | Labels considered "guitar" for thresholding |
-| `INSTRUMENT_TAG_STEMS` | `("other", "guitar", "piano", "bass")` | Which stems get instrument tags |
-| `INSTRUMENT_TAG_REQUIRE_STEM_ACTIVITY` | `True` | Drop tags on near‑empty stems unless very strong |
-| `INSTRUMENT_TAG_MIN_NOTES_FOR_WEAK` | `8` | Minimum note count before accepting weak tags |
-| `INSTRUMENT_TAG_STRONG_PROB` | `0.45` | Probability above which stem‑activity checks are relaxed |
-| `INSTRUMENT_TAG_WINDOW_SECONDS` | `10.0` | Window length for windowed tagging (None = whole clip) |
-| `INSTRUMENT_TAG_HOP_SECONDS` | `5.0` | Hop between windows |
-| `INSTRUMENT_TAG_MAX_WINDOWS` | `40` | Maximum number of windows per clip |
-| `INSTRUMENT_TAG_NORMALIZE` | `True` | Peak‑normalize each window before tagging |
-| `INSTRUMENT_TAG_NORMALIZE_PEAK` | `0.95` | Target peak after normalisation |
-| `WHOLE_MIX_INSTRUMENT_TAG_TOP_K` | `6` | |
-| `WHOLE_MIX_INSTRUMENT_TAG_MIN_PROB` | `0.15` | |
-| `INSTRUMENT_TAG_MIX_AGREE_MIN_PROB` | `0.18` | Minimum whole‑mix probability to consider a stem tag supported |
+|---|---:|---|
+| `FAST_MODE` | `False` | Skip the Music Flamingo self-check pass to save time and one generation. |
+| `DEEP_MODE` | `False` | Use larger token budgets and two extra analysis categories; more thorough but slower. |
+| `PARALLEL_ANALYSIS` | `True` | Run independent analysis tasks concurrently where supported. Background failures are retried in order. |
+| `ENABLE_OBJECTIVE_AUDIO_REPORT` | `True` | Include signal-processing-based objective audio measurements. |
+| `COMPACT_OBJECTIVE_REPORT` | `True` | Use a compact objective-report format. |
+| `SKIP_MF_LYRICS_WHEN_TAGS_PRESENT` | `True` | Avoid asking Music Flamingo to transcribe lyrics when usable lyrics are already available from tags. |
+| `ENABLE_VOCAL_PASS` | `True` | Run the dedicated vocal-analysis pass. |
+| `ENABLE_VOCAL_OBJECTIVE_REPORT` | `True` | Include objective vocal measurements. |
+| `ENABLE_VOCAL_CONFIRMATION_PASS` | `True` | Run the additional vocal classification/confirmation pass when needed. |
+| `ENABLE_VOCAL_STEM_ISOLATION` | `True` | Separate the vocal stem for pitch tracking even when stem/MIDI transcription is disabled. |
+| `ENABLE_INDEPENDENT_F0_MULTI_SINGER_TRIGGER` | `True` | Use independent pitch evidence to help trigger multi-singer/duet checks. |
+| `INDEPENDENT_MULTI_SINGER_MIN_SEP_SEMITONES` | `7.5` | Minimum pitch-centre separation used by the independent multi-singer trigger. |
+| `INDEPENDENT_MULTI_SINGER_MIN_RATIO` | `0.25` | Minimum share/ratio of usable pitch evidence required by that trigger. |
+| `ENABLE_ESSENTIA_REPORT` | `True` | Include Essentia-based audio features when Essentia is installed. |
+| `ENABLE_STEM_MIDI` | `True` | Run stem separation and per-stem MIDI/note analysis. |
+| `FULL_MIDI_TRANSCRIPTION` | `True` | Use the full MIDI-transcription path rather than the lighter summary-only path. |
+| `STEM_MIDI_INCLUDE_EVENT_LOGS` | `False` | Include detailed stem/MIDI event logs. |
+| `STEM_MIDI_COMPACT_EVENT_FORMAT` | `True` | Use a compact format for stem/MIDI event output. |
+| `STRUCTURE_V2_ENABLED` | `True` | Use the newer bar-level, multi-cue song-structure segmentation. Set `False` to fall back to the previous structure pipeline. |
+| `CHAT_HIDE_SECTION_NAMES` | `True` | In chat evidence, refer to measured song sections by part number and time rather than names such as verse/chorus. |
+| `STRUCTURE_ANSWERS_WITH_TIMES` | `True` | Include measured times in structure answers. |
+| `WHISPER_WORD_TIMING` | `True` | Use Whisper word timing to help align lyrics with the section map. |
+| `WHISPER_EXPLICIT_TEMPERATURE` | `False` | Explicitly set Whisper's anti-hallucination temperature settings. Enabling it can change lyric text and timing; the default leaves it off for compatibility. |
+| `WHISPER_TIMING_RETRY` | `True` | Retry word timing when the first timing result is too weak. |
+| `MF_CONSISTENT_REPORT` | `False` | Ask the listening model for a consistent field-based report. This can change the evidence supplied by the model; normally leave off unless testing. |
+| `REPORT_FIXED_LAYOUT` | `True` | Standardise the saved analysis fields and their order when writing JSON files. |
+| `REPORT_FILL_FROM_EVIDENCE` | `True` | Fill otherwise-empty report fields from suitable evidence already present in the analysis. |
+| `REPORT_FIXED_BLOCKS` | `True` | Keep key report blocks present and in a consistent location in saved JSON. |
+| `VOCAL_QUICK_PASS` | `True` | Run the short vocal-description pass. |
+| `VOCAL_NOTE_PITCH_LINE` | `True` | Include the vocal stem's note-by-note pitch line as a cross-check. |
+| `VOCAL_PITCH_OCTAVE_CHECK` | `True` | Check for a pitch tracker reading that is an octave above the note-by-note reading. |
+| `VOCAL_UNBROKEN_SIGNATURE` | `True` | Preserve evidence that an adolescent male voice may be unbroken when supported by the vocal analysis. |
+| `VOCAL_DEEPENED_SIGNATURE` | `True` | Distinguish a young male artist whose voice has already deepened. |
+| `COMPARE_VOICE_PITCH` | `True` | Include measured lead-voice pitch comparisons in `/loadcompare` where available. |
+| `INSTRUMENT_REED_TAG_CHECK` | `True` | Flag unsupported reed-instrument tags when other evidence suggests a synth or sax-like sound. |
+| `ENABLE_CLAP_EMBEDDING` | `True` | Compute and save CLAP audio embeddings for sonic-similarity evidence in multi-track comparisons. Requires compatible Transformers CLAP classes. |
+| `PRODUCTION_ANALYSIS_ENABLED` | `True` | Run the dedicated production-era analysis. |
+| `ENABLE_COVER_ART_DESCRIPTION` | `True` | Describe embedded cover art when available. |
+| `ENABLE_SINGER_IDENTITY_RESOLUTION` | `True` | Resolve the singer's likely identity from audio and available context. |
+| `ENABLE_IMAGE_OBSERVATIONS_FOR_GENERAL` | `False` | Allow image observations in ordinary general-chat turns. This is off by default (**was `True` in the previous list**); track cover-art description is controlled separately. |
+| `ENABLE_WIKI_CONTEXT` | `True` | Add locally indexed Wikipedia background to relevant questions when the database is available. |
 
-## Genre/mood tagging (PANNs)
-
-| Variable | Default | Description |
-|---|---|---|
-| `GENRE_TAG_TOP_K` | `5` | |
-| `GENRE_TAG_MIN_PROB` | `0.05` | |
-| `MOOD_TAG_TOP_K` | `3` | |
-| `MOOD_TAG_MIN_PROB` | `0.08` | |
-
-## Essentia / audio‑analysis limits
-
-| Variable | Default | Description |
-|---|---|---|
-| `ESSENTIA_MAX_SECONDS` | `300.0` | |
-| `ESSENTIA_LOWLEVEL_MAX_SECONDS` | `60.0` | |
-| `ESSENTIA_FRAME_SIZE` | `4096` | |
-| `ESSENTIA_HOP_SIZE` | `2048` | |
-
-## Stem/MIDI limits
-
-| Variable | Default | Description |
-|---|---|---|
-| `STEM_MIDI_MAX_SECONDS` | `None` | `None` = full‑track MIDI; set a number to cap for speed |
-| `STEM_MIDI_EVENT_LOG_MAX_NOTES` | `24` | |
-| `STEM_MIDI_MELODY_LINE_NOTES` | `24` | |
-| `STEM_MIDI_DRUM_PATTERN_HITS` | `24` | |
-
-## Vocal‑classification thresholds
+## CLAP sonic-similarity embeddings
 
 | Variable | Default | Description |
-|---|---|---|
-| `VOCAL_CONFIRMATION_F0_THRESHOLD` | `210.0` | |
-| `VOCAL_CONFIRMATION_WITHOUT_F0` | `True` | |
-| `F0_MALE_HIGH_CONFIRM_HZ` | `260.0` | |
-| `F0_POST_PUBERTY_SOFT_CAP_HZ` | `280.0` | |
-| `F0_POST_PUBERTY_HARD_CAP_HZ` | `320.0` | |
-| `F0_MALE_ANY_HARD_CAP_HZ` | `320.0` | |
-| `F0_CHILD_SOFT_FLOOR_HZ` | `180.0` | |
-| `METADATA_LYRICS_MIN_CHARS_TO_SKIP_MF` | `80` | |
+|---|---:|---|
+| `CLAP_MODEL_ID` | `laion/larger_clap_music_and_speech` | CLAP model used to produce audio embeddings. |
+| `CLAP_EMBEDDING_DIMENSION` | `512` | Expected embedding size. Normally leave unchanged for the configured model. |
+| `CLAP_SAMPLE_RATE` | `48000` | Audio sample rate used for embedding extraction. |
+| `CLAP_WINDOW_SECONDS` | `10.0` | Length of each audio window. |
+| `CLAP_WINDOW_HOP_SECONDS` | `5.0` | Hop between embedding windows. |
+| `CLAP_MAX_WINDOWS` | `24` | Maximum windows embedded per track. |
+| `CLAP_USE_MPS` | `False` | Use Apple's MPS device for save-time embedding work. Off by default to avoid competing with Ollama for unified memory. |
+| `CLAP_EMBEDDING_PRECISION` | `8` | Decimal places stored for embedding values in JSON. The vectors remain normalised. |
 
-## Metadata / cover art
+## Instrument tagging thresholds (PANNs / AudioSet)
 
 | Variable | Default | Description |
-|---|---|---|
-| `ENABLE_FILE_METADATA` | `True` | |
-| `SEND_COVER_ART_TO_OLLAMA` | `True` | |
-| `METADATA_MAX_LYRICS_CHARS` | `10000` | |
-| `COVER_IMAGE_MAX_DIMENSION` | `512` | |
-| `COVER_IMAGE_QUALITY` | `"2"` | (valid mjpeg qscale, lower = better quality) |
-| `MAX_COVER_IMAGES_PER_REQUEST` | `1` | |
-| `MAX_COVER_BYTES_TO_SEND_RAW` | `1_000_000` | |
-| `MAX_EXPLICIT_IMAGE_BYTES` | `2_000_000` | |
-| `MAX_IMAGES_PER_REQUEST` | `8` | |
-| `MAX_IMAGES_TO_DESCRIBE` | `2` | |
-| `COVER_ART_DESCRIPTION_NUM_CTX` | `8192` | |
-| `SINGER_IDENTITY_NUM_CTX` | `8192` | |
+|---|---:|---|
+| `ENABLE_INSTRUMENT_TAGGING` | `True` | Enable per-stem instrument tagging; requires `panns-inference`. |
+| `INSTRUMENT_TAG_MIN_PROB` | `0.18` | Minimum probability for most instrument labels. |
+| `INSTRUMENT_TAG_TOP_K` | `4` | Maximum number of instrument tags kept per stem. |
+| `INSTRUMENT_TAG_GUITAR_MIN_PROB` | `0.35` | Higher probability threshold for guitar-family labels, which are noisier. |
+| `INSTRUMENT_TAG_STEMS` | `("other", "guitar", "piano", "bass", "drums")` | Stems that receive instrument tags. **Drums is now included.** |
+| `INSTRUMENT_TAG_REQUIRE_STEM_ACTIVITY` | `True` | Suppress tags on near-empty stems unless the evidence is strong. |
+| `INSTRUMENT_TAG_MIN_NOTES_FOR_WEAK` | `8` | Minimum note count before weaker tags can be accepted. |
+| `INSTRUMENT_TAG_STRONG_PROB` | `0.45` | Probability above which stem-activity checks are relaxed. |
+| `INSTRUMENT_TAG_WINDOW_SECONDS` | `10.0` | Tagging window length; `None` means the whole clip. |
+| `INSTRUMENT_TAG_HOP_SECONDS` | `5.0` | Hop between tagging windows. |
+| `INSTRUMENT_TAG_MAX_WINDOWS` | `56` | Maximum windows sampled per clip (**was `40` in the previous list**). |
+| `INSTRUMENT_TAG_NORMALIZE` | `True` | Peak-normalise each window before tagging. |
+| `INSTRUMENT_TAG_NORMALIZE_PEAK` | `0.95` | Target peak after normalisation. |
+| `INSTRUMENT_TAG_EVEN_COVERAGE` | `True` | Encourage coverage across a track rather than concentrating samples in one region. |
+| `INSTRUMENT_TAG_MIN_WINDOW_HITS` | `2` | Minimum windows supporting a tag under the normal coverage rule. |
+| `INSTRUMENT_TAG_SINGLE_WINDOW_STRONG_PROB` | `0.50` | Strong probability needed to accept a tag supported by only one window. |
+| `INSTRUMENT_TAG_SUSTAINED_COVERAGE` | `0.25` | Coverage level used by the sustained-instrument rule. |
+| `INSTRUMENT_TAG_SUSTAINED_PROB_RELIEF` | `0.85` | Probability relief factor for sustained tags. |
+| `ENABLE_WHOLE_MIX_INSTRUMENT_TAGGING` | `True` | Tag the original full mix independently of Demucs. |
+| `WHOLE_MIX_INSTRUMENT_TAG_TOP_K` | `6` | Maximum whole-mix instrument tags to retain. |
+| `WHOLE_MIX_INSTRUMENT_TAG_MIN_PROB` | `0.15` | Minimum probability for whole-mix tags. |
+| `INSTRUMENT_TAG_MIX_AGREE_MIN_PROB` | `0.18` | Minimum whole-mix probability used to support a stem tag. |
+| `INSTRUMENT_SECTION_PRESENCE_ENABLED` | `True` | Detect instrument presence by song section. |
+| `INSTRUMENT_SECTION_MIN_PROB` | `0.30` | Minimum probability for section-level instrument presence. |
+| `INSTRUMENT_SECTION_MAX_LABELS` | `6` | Maximum labels reported for a section. |
+| `ARRANGEMENT_CHANGE_ENABLED` | `True` | Detect arrangement changes over time. |
+| `BEAT_GRID_ENABLED` | `True` | Include beat-grid evidence used by rhythm and arrangement analysis. |
+| `CYMBAL_ONSET_DETECT_ENABLED` | `True` | Enable the dedicated cymbal-onset detector. |
+| `DRUM_EXTRAS_PROBE_ENABLED` | `True` | Enable additional checks for drum details beyond the main instrument tags. |
+
+## Genre / mood tagging (PANNs)
+
+| Variable | Default | Description |
+|---|---:|---|
+| `ENABLE_GENRE_MOOD_TAGGING` | `True` | Use PANNs as an independent genre/mood cross-check. Requires `panns-inference`. |
+| `GENRE_TAG_TOP_K` | `5` | Number of genre tags considered. |
+| `GENRE_TAG_MIN_PROB` | `0.05` | Minimum probability for genre tags. |
+| `MOOD_TAG_TOP_K` | `3` | Number of mood tags considered. |
+| `MOOD_TAG_MIN_PROB` | `0.08` | Minimum probability for mood tags. |
+
+## Essentia / audio-analysis limits
+
+| Variable | Default | Description |
+|---|---:|---|
+| `ESSENTIA_MAX_SECONDS` | `900.0` | Maximum track duration used for the main Essentia report (**was `300.0` in the previous list**). |
+| `ESSENTIA_LOWLEVEL_MAX_SECONDS` | `60.0` | Maximum duration for low-level frame-based features. |
+| `ESSENTIA_FRAME_SIZE` | `4096` | Analysis frame size. |
+| `ESSENTIA_HOP_SIZE` | `2048` | Analysis hop size. |
+
+## Stem / MIDI limits
+
+| Variable | Default | Description |
+|---|---:|---|
+| `STEM_MIDI_MAX_SECONDS` | `None` | Maximum duration for stem/MIDI work. `None` means analyse the full track; set a number to cap work for speed. |
+| `STEM_MIDI_EVENT_LOG_MAX_NOTES` | `24` | Maximum notes included in an event-log summary. |
+| `STEM_MIDI_MELODY_LINE_NOTES` | `24` | Maximum notes in a melody-line summary. |
+| `STEM_MIDI_DRUM_PATTERN_HITS` | `24` | Maximum hits in a drum-pattern summary. |
+| `STEM_MIDI_INCLUDE_EVENT_LOGS` | `False` | Include the detailed event logs. |
+| `STEM_MIDI_COMPACT_EVENT_FORMAT` | `True` | Use compact event formatting. |
+
+## Vocal-classification thresholds
+
+| Variable | Default | Description |
+|---|---:|---|
+| `VOCAL_CONFIRMATION_F0_THRESHOLD` | `210.0` | Fundamental-frequency threshold (Hz) used by vocal confirmation. |
+| `VOCAL_CONFIRMATION_WITHOUT_F0` | `True` | Allow confirmation without a reliable F0 estimate. |
+| `F0_MALE_HIGH_CONFIRM_HZ` | `260.0` | Male/adolescent lead median at or above this frequency can trigger confirmation. |
+| `F0_POST_PUBERTY_SOFT_CAP_HZ` | `350.0` | Median at or above this value weakens a post-puberty-male assignment based on pitch alone (**was `280.0` in the previous list**). |
+| `F0_POST_PUBERTY_HARD_CAP_HZ` | `350.0` | High-median cap for post-puberty/adolescent male labels (**was `320.0`**). |
+| `F0_MALE_ANY_HARD_CAP_HZ` | `350.0` | High-median cap for any male-tagged lead, including adolescent labels (**was `320.0`**). |
+| `F0_FEMALE_RECOVERY_MIN_HZ` | `320.0` | Minimum median pitch for the high-pitch male-tag recovery check to consider strong female confirmation. |
+| `F0_CHILD_SOFT_FLOOR_HZ` | `180.0` | A child-category assignment below this median should not be retained on pitch evidence alone. |
+
+## Metadata / cover art / images
+
+| Variable | Default | Description |
+|---|---:|---|
+| `ENABLE_FILE_METADATA` | `True` | Read supported file metadata/tags. |
+| `SEND_COVER_ART_TO_OLLAMA` | `True` | Send prepared embedded cover art to the writer model when image input is supported. |
+| `METADATA_MAX_LYRICS_CHARS` | `10000` | Maximum lyric characters accepted from file metadata. |
+| `LYRICS_MAX_CHARS` | `12000` | General maximum lyric text length. |
+| `COVER_IMAGE_MAX_DIMENSION` | `512` | Maximum cover-art dimension in the prepared image. |
+| `COVER_IMAGE_QUALITY` | `"2"` | MJPEG qscale for cover-image conversion; lower values mean better quality. |
+| `MAX_COVER_IMAGES_PER_REQUEST` | `1` | Maximum cover images sent per request. |
+| `MAX_COVER_BYTES_TO_SEND_RAW` | `1_000_000` | Maximum cover-image byte size sent without further conversion. |
+| `MAX_EXPLICIT_IMAGE_BYTES` | `2_000_000` | Byte limit used when preparing explicit images supplied in chat. |
+| `EXPLICIT_IMAGE_MAX_DIMENSION` | `1568` | Maximum dimension for explicit images; larger/unsupported images are converted rather than rejected. |
+| `MAX_IMAGES_PER_REQUEST` | `8` | Maximum images considered for a request. |
+| `MAX_IMAGES_TO_DESCRIBE` | `2` | Maximum images to describe in a turn. |
+| `COVER_ART_DESCRIPTION_NUM_CTX` | `8192` | Context size for cover-art description requests. |
+| `SINGER_IDENTITY_NUM_CTX` | `8192` | Context size for singer-identity requests. |
 
 ## Chat history / context budget
 
 | Variable | Default | Description |
-|---|---|---|
-| `MAX_WRITER_IMAGES_PER_TURN` | `8` | Images actually sent to Ollama in one request |
-| `MAX_STORED_IMAGES_IN_HISTORY` | `8` | Base64 images kept in `writer_history` |
-| `MAX_WRITER_HISTORY_MESSAGES` | `80` | |
-| `MAX_MESSAGE_CHARS_FOR_OLLAMA` | `60_000` | |
-| `HISTORY_CHAR_BUDGET_FACTOR` | `3.2` | Conservative chars‑per‑token estimate for trimming |
+|---|---:|---|
+| `MAX_WRITER_IMAGES_PER_TURN` | `8` | Maximum images actually sent to Ollama in one request. |
+| `IMAGE_RETAIN_LAST_N_MESSAGES` | `8` | Retain image data for this many recent history messages (**replaces the old list's `MAX_STORED_IMAGES_IN_HISTORY` setting**). |
+| `MAX_WRITER_HISTORY_MESSAGES` | `80` | Maximum writer-history messages retained. |
+| `MAX_MESSAGE_CHARS_FOR_OLLAMA` | `120000` | Maximum message length sent to Ollama (**was `60000` in the previous list**). |
+| `HISTORY_CHAR_BUDGET_FACTOR` | `3.2` | Conservative characters-per-token estimate for trimming history. |
 
 ## Wikipedia context
 
 | Variable | Default | Description |
-|---|---|---|
-| `ENABLE_WIKI_CONTEXT` | `True` | |
-| `WIKI_DB_PATH` | `music_wiki_heavy.db` | |
-| `WIKI_DB_TIMEOUT_S` | `5.0` | |
-| `WIKI_CONTEXT_MAX_CHARS_PER_ARTICLE` | `1800` | Per‑article cap — enough for lead + a track listing or reception section |
-| `WIKI_CONTEXT_TOTAL_MAX_CHARS` | `5000` | Hard ceiling on the whole block regardless of article count |
-| `WIKI_MAX_ARTICLES` | `6` | e.g. song + album + artist article, combined |
-| `WIKI_SEARCH_ROW_LIMIT` | `8` | Slightly wider FTS window so (album) disambiguation can rank |
-| `WIKI_CONTEXT_REFRESH_EVERY_QUESTION` | `False` | |
-| `WIKI_SEARCH_EVERY_MESSAGE` | `True` | |
-| `WIKI_DEBUG_LOG` | `True` | Print a one‑line status after every general‑chat question showing whether the wiki DB returned a match |
+|---|---:|---|
+| `ENABLE_WIKI_CONTEXT` | `True` | Add locally indexed Wikipedia context to relevant questions. |
+| `WIKI_DB_PATH` | `music_wiki_heavy.db` | Path to the local Wikipedia database. |
+| `WIKI_DB_TIMEOUT_S` | `5.0` | Database timeout. |
+| `WIKI_CONTEXT_MAX_CHARS_PER_ARTICLE` | `1800` | Maximum characters taken from each article. |
+| `WIKI_CONTEXT_TOTAL_MAX_CHARS` | `5000` | Maximum total Wikipedia context block size. |
+| `WIKI_MAX_ARTICLES` | `6` | Maximum articles included in a context block. |
+| `WIKI_SEARCH_ROW_LIMIT` | `24` | Full-text-search result window (**was `8` in the previous list**). |
+| `WIKI_EXACT_TITLE_LOOKUP` | `True` | Try exact-title lookup in addition to body search. |
+| `WIKI_EXACT_TITLE_MAX_PER_REQUEST` | `8` | Maximum exact-title lookups per request. |
+| `WIKI_EXACT_TITLE_MAX_HITS` | `2` | Maximum hits retained per exact-title query. |
+| `WIKI_CONTEXT_REFRESH_EVERY_QUESTION` | `False` | Refresh cached Wikipedia context for every question. |
+| `WIKI_SEARCH_EVERY_MESSAGE` | `True` | Search for relevant context on every message. |
+| `WIKI_DEBUG_LOG` | `True` | Print a one-line status after general-chat questions showing whether the database returned a match. |
 
-## Batch mode
+## Production-era analysis
+
+| Variable | Default | Description |
+|---|---:|---|
+| `PRODUCTION_ANALYSIS_ENABLED` | `True` | Enable the dedicated production-era analysis. |
+| `PRODUCTION_EXCERPT_COUNT` | `8` | Number of audio excerpts used for this analysis. |
+| `PRODUCTION_EXCERPT_SECONDS` | `6.0` | Duration of each excerpt in seconds. |
+| `PRODUCTION_ENVELOPE_SR` | `22050` | Sample rate used by the production-envelope analysis. |
+
+## Modal (key / scale) detection
+
+| Variable | Default | Description |
+|---|---:|---|
+| `MODAL_DETECTION_MIN_NOTES` | `24` | Minimum note count before mode detection is trusted. |
+| `MODAL_DETECTION_MIN_SHARE` | `0.04` | Minimum share of note weight for the deciding pitch-class pair. |
+| `MODAL_DETECTION_MIN_RATIO` | `4.0` | Required ratio between a characteristic scale degree and its rival. |
+
+## Batch mode / memory management
+
+| Variable | Default | Description |
+|---|---:|---|
+| `BATCH_PAUSE_BETWEEN_TRACKS_S` | `20.0` | Pause between tracks during `/batch` to let memory settle. |
+| `BATCH_RETRY_CRASHED_ANALYSIS` | `True` | Retry a track once in a fresh process if its analysis process crashes. |
+| `BATCH_ISOLATE_PER_TRACK` | `True` | Run each track in a fresh Python subprocess; recommended on macOS. |
+| `BATCH_SPLIT_IDENTITY_PROCESS` | `True` | Separate heavy analysis from identity/save work to reduce out-of-memory risk. |
+| `BATCH_LOG_RSS` | `True` | Log approximate process resident memory after cleanup. |
+| `BATCH_UNLOAD_OLLAMA` | `True` | Unload the Ollama writer model during heavy batch-analysis stages. |
+| `BATCH_OLLAMA_KEEP_ALIVE` | `0` | `keep_alive` for short batch helper requests; `0` unloads immediately. |
+| `BATCH_PRE_IDENTITY_SETTLE_S` | `5.0` | Wait before the identity/save stage to let memory settle. |
+
+## Persona / prompts / saved files
 
 | Variable | Default | Description |
 |---|---|---|
-| `BATCH_PAUSE_BETWEEN_TRACKS_S` | `20.0` | Pause between tracks during `/batch` to let memory settle |
-| `BATCH_ISOLATE_PER_TRACK` | `True` | Run each track in a fresh Python subprocess (recommended on macOS) |
-| `BATCH_SPLIT_IDENTITY_PROCESS` | `True` | Split heavy analysis and identity/save into separate processes (avoids OOM) |
-| `BATCH_LOG_RSS` | `True` | Log approximate process RSS after cleanup |
-| `BATCH_UNLOAD_OLLAMA` | `True` | Unload the Ollama writer model during heavy analysis stages |
-| `BATCH_OLLAMA_KEEP_ALIVE` | `0` | `keep_alive` for short batch helper requests (0 = unload immediately) |
-| `BATCH_PRE_IDENTITY_SETTLE_S` | `5.0` | Settle time before identity stage (reclaims RAM) |
-
-## Persona / prompts
-
-| Variable | Default | Description |
-|---|---|---|
-| `DEFAULT_PERSONA_PROMPT` | *(see script)* | Swappable at runtime via `/persona` |
-| `SAVE_DIR` | `./saved-songs` | Directory where saved tracks are stored |
+| `DEFAULT_PERSONA_PROMPT` | *(see script)* | Default writer persona; custom personas can be set at runtime with `/persona`. |
+| `SAVE_DIR` | `./saved-songs` | Directory for saved track JSON files and associated assets. |
 
 ---
 
-**Not included:** internal data structures such as `NOTE_NAMES`, `GM_DRUM_PITCH_TYPE`, `STEM_MIDI_STEMS`, `OMNIZART_STEM_APP`, the vocal‑category tag sets, and the prompt template bodies themselves (e.g. `MF_FULL_ANALYSIS_PROMPT`) — these are technically editable but function as implementation detail rather than user‑facing settings.
+**Not exhaustively listed:** Musiclyse 0.5 has additional fine-grained `STRUCTURE_*`, vocal, instrument-probe and algorithm-tuning constants in its `USER CONFIGURATION` section. They are omitted here where they are primarily implementation-level thresholds rather than practical day-to-day settings. Internal data structures and prompt-template bodies (for example `NOTE_NAMES`, `GM_DRUM_PITCH_TYPE`, `MF_FULL_ANALYSIS_PROMPT`, and the default persona text itself) are also not reproduced in this guide.
 
-When the context gets over the user-specified token context window, it will forget conversation context from outside of it, however will not forget currently loaded songs and images.
 
 # Possible future features:
 
 These are a few things that I want to implement in the future but so far haven't done
 
 * Separate the configuration flags from the main script in a different file
-* Improved melody detection. I've had to limit the amount of MIDI data the JSON file stores to avoid excessive token bloat (it's still relatively high as is), and might look at better algorithms for which it can capture the melody of songs to "hear" the music. (coming in 0.4, via the option to transcribe all MIDI notes in a track at the expense of higher LLM token usage)
+* Improved melody and song key detection
 * Most of the project was vibecoded with the help of several LLMs, and while the current build appears to be fully usable, those with better coding knowledge could probably help patch any issues.
-* Implement improved AI lyric transcription via a Whisper model (coming in 0.4)
+* Improved timestamp labelling (timestamp detection itself has been improved a lot in 0.5)
 * Improved estimated era accuracy for songs without a year tag
+* Update the script for Python 3.11
+* Potentially look into replacing Music Flamingo with a more reliable alternative listening model that scores higher in benchmarks and which is not as prone to hallucinating gibberish
 
 
 
