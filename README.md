@@ -13,11 +13,11 @@ A highly configurable piece of local AI chatbot software that can "listen" to mu
 
 # About:
 
-Musiclyse is a Python script designed for high-spec Macs (it is easily portable to good quality Linux PCs) that enables local conversations about music. It utilises a multi-step song processing pipeline linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Music Flamingo, Essentia, Demucs separation fed to Omnizart and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
+Musiclyse is a Python script designed for high-spec Macs (it is easily portable to good quality Linux PCs) that enables local conversations about music. It utilises a multi-step song processing pipeline linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of MOSS-Music, Essentia/PANNs, Discogs-400 genre detection, Demucs separation fed to Omnizart, Wikipedia database RAG retrieval for artist context, and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
 
 # Key features:
 
-The following features are all included in Musiclyse 0.5:
+The following features are all included in Musiclyse 0.6:
 
 * Beat, melody, genre, vocal, song key, song structure, scale and era analysis. Accuracy for many things has been significantly improved since 0.3.
 * Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
@@ -33,8 +33,11 @@ The following features are all included in Musiclyse 0.5:
 
 ## Version history:
 
-* 2026/10/27 - Musiclyse 0.6. Coming soon.
-* 2026/10/15 - Musiclyse 0.5. Details coming soon.
+* 2026/10/27 - Musiclyse 0.6. Now uses Python 3.11 (due to the end of Python 3.10 support). Replaced Music Flamingo with MOSS-Music as the listening model, which scores higher in benchmarks and is less prone to erratic hallucinations (being built on Qwen 3 8B instead of Qwen 2.5 7B). Mood and style detection should now be noticeably more detailed. This does require a different installation process to before. Noticeable improvements to timestamp and song section detection accuracy, as well as song key and BPM detection accuracy. Refined the .json-to-txt export script to take into account the updates and improvements made. Much improved genre classification. Fixed a number of memory caching and disk swap bugs that were causing high memory pressure on Macs with 64GB RAM. You should notice that songs process noticeably faster than in 0.5 (which brought down times noticeably from 0.4).
+*Refinements to vocal identity detection
+*Implemented a system attempting to allow output LLMs to discuss music theory in a song based on the extracted MIDI and time signature information, notably things like chord progressions.
+*Added a new install script that should make the software easier to setup
+* 2026/10/15 - Musiclyse 0.5. Makes various improvements from 0.4.
 * 2026/09/03 - Musiclyse 0.4. Implemented Whisper transcription for lyrics, replacing Music Flamingo for this task (you will need to download a new model). Added CLAP embeddings to further help determine song similarity in comparisons (this also requires a new model). Further refined instrument and melody recognition capabilities. Improved song structure recognition with more accurate timestamps. Further refined vocalist recognition capabilities. Musiclyse can now talk about where instruments are in a track and output drum grooves. Implemented a flag in the script for full MIDI analysis (at the expense of using more tokens). Fixed an issue that was truncating the middle of the system prompts, reducing output accuracy (if your token context window is set too low, you will now see a warning about prompt truncation on startup). Fixed an issue that was causing all tracks to be treated as mono. Implemented mode detection for analysed songs. Improved custom persona functionality so that custom personas are much less likely to know about things they would not be aware of, while still being able to talk about topics they are aware of. Improved era detection for songs without metadata. Reduced the likelyhood of a couple of other Music Flamingo/Qwen 2.5 7B hallucination bugs. Wikipedia database lookup logic has been noticeably improved as a result of debugging (it uses the same database as 0.3), and now produces relevant results for both songs when comparing tracks. Fixed problems with guitar being wrongly identified as not present, and organ incorrectly identified. Fixed filename import and .json extension requirement issues with /loadcompare. Fixed Ollama caching problem to make long conversations faster (this may cause old messages to disappear from the context suddenly rather than "fade" away. Fixed a bug that caused the script to crash when loading a model without vision support, or when loading an invalid model. Fixed a problem whereby the script would crash on song or image import where running with a non-vision capable output LLM. Fixed a problem whereby the script would crash if a non-valid output model was defined.
 * 2026/08/28 - Musiclyse 0.3. Larger Wikipedia database (optional). Proper database search implementation, meaning much less lookup latency. Vastly strengthened lyric transcription hallucinations in Music Flamingo's Qwen 2.5 7B (though may transcribe fewer lyrics). Improved song import context reasoning. Improved track instrument recognition. Improved multi-voice recognition. Improved genre recognition. Improved BPM recognition. Fixed issue with phantom instruments being detected on subsequent tracks without them where they were present in the first track of a conversation. Musiclyse can now talk about the loudness of music in LUFS as well as dynamics crest factor. Improved vocal age range classification logic. Fixed problem that was only analysing vocal range for first 30 seconds. Prevented the Wikipedia and native LLM logic bases from using their knowledge of an artist to influence their description of the style of an analysed song, while still being able to talk about the artist. Files can now be loaded and saved with spaces and non-standard characters. Batch saves now use an "Artist Name - Song Name" naming structure. Wikipedia context is now cleared on /clear command. Added /clearall command to also purge cached songs. You can now /listen and analyse a specified second range of a track for increased speed and accuracy. The batch processing crash issues on Macs with 64GB RAM have now been properly fixed. Fixed a problem where the LLM did not recognise other musicians that the model was capable of recognising from images mid-conversation. IMPORTANT NOTE - Due to how prone Music Flamingo was to hallucinating on lyric transcriptions, I have implemented strict transcription guardrails that now commonly result in it not outputting lyrics at all, so make sure your files have lyric metadata to allow the LLM to talk about lyrics on a track! I intend to implement an alternative transcription model on a future release.
 * 2026/08/24 - Musiclyse 0.2. Adds Wikipedia database integration for much more reliable chats about artists, albums and songs. Omnizart processing logs are now hidden by default. Improved batch processing optimisations to make crashes on Macs with 64GB RAM less likely. Improved BPM and instrument recognition (though there may still be some minor accuracy issues). Overall a much better chat experience from the added bank of data. Is now set to use muse-glimmer:30b-mlx by default, which significantly improves LLM processing times on MacOS. If using Linux (or Windows if you can get it working), change to the non-MLX version or a different version.
@@ -151,9 +154,9 @@ Musiclyse: That made my day — glad it landed how you wanted. Always happy to n
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
 
-# Installation for 0.5 (for MacOS):
+# Manual Installation for 0.6 (for MacOS):
 
-1: Ensure Python 3.10 is installed on your system
+1: Ensure Python 3.11 is installed on your system
 
 2: Clone the provided files onto your machine for the latest version, or alternatively download a version from the Releases section.
 
@@ -165,35 +168,26 @@ Due to the nature of what it's doing, it's intended to be run on powerful machin
 brew install ollama ffmpeg portaudio
 ```
 
-4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.1.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
+4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.6.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
 
 ```
 ollama serve
 ollama pull muse-glimmer:30b-mlx
 ```
 
-5: Return to your PREVIOUS prompt, leaving the Ollama one open (once the model has installed and the server is running) since the script will not run without an Ollama server running, and create a virtual Python 3.10 folder in the folder with the git clone you made:
+5: Return to your PREVIOUS prompt, leaving the Ollama one open (once the model has installed and the server is running) since the script will not run without an Ollama server running, and create a virtual Python 3.11 environment in the folder with the git clone you made:
 ```
-python3.10 -m venv ./venv
+python3.11 -m venv ./venv
 source venv/bin/activate
 ```
 
-6: Install the requirements:
+6: Run the main installer, which installs requirements.txt and some of the models used:
 
 ```
-pip install -r requirements.txt
+bash install_musiclyse.sh
 ```
 
-7: Install Music Flamingo, Whisper Large V3 and CLAP:
-
-```
-pip install huggingface_hub
-hf download nvidia/music-flamingo-hf
-hf download openai/whisper-large-v3 --include "model.safetensors" "*.json" "*.txt"
-python -c "from transformers import ClapModel, ClapProcessor; ClapProcessor.from_pretrained('laion/larger_clap_music_and_speech'); ClapModel.from_pretrained('laion/larger_clap_music_and_speech')"
-```
-
-8: Download Omnizart models:
+7: Once the main installer has finished, download the Omnizart models:
 
 ```
 omnizart download-checkpoints
@@ -202,22 +196,21 @@ omnizart download-checkpoints
 9: Run the software:
 
 ```
-python musiclyse-0.5.py
+python musiclyse-0.6.py
 ```
 
-# Configurable Variables & Flags in Musiclyse 0.5
-
-This reference is updated for `musiclyse-0.5.py`. Most configurable settings are Python constants in the `USER CONFIGURATION` section; change values there and restart Musiclyse. These are script settings, not environment variables unless noted. A few automatically detected or runtime-only values are identified as such.
+# Configurable Variables & Flags in Musiclyse 0.6
 
 ## Command-line
 
 | Usage | Description |
 |---|---|
 | `python musiclyse.py` | Start without a track; choose one with `/listen`. |
-| `python musiclyse.py /path/to/song.m4a` | Start with a local audio file. A URL can also be supplied where supported. |
+| `python musiclyse.py /path/to/song.m4a` | Start with a local audio file. A URL can also be supplied where supported. Use the actual script filename if it has not been renamed to `musiclyse.py`. |
 | `python musiclyse.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker used by `/batch`. |
 | `python musiclyse.py --batch-one-analyze /path/to/song.mp3 /tmp/staging.json` | Internal: heavy-analysis stage for split-process batch mode. |
 | `python musiclyse.py --batch-one-finish /tmp/staging.json` | Internal: identity/save stage for split-process batch mode. |
+| `python musiclyse.py --omnizart-prefetch /tmp/input.json /tmp/output.json` | Internal: separate-process Omnizart transcription worker; not a normal startup option. |
 
 ## In-chat slash commands
 
@@ -246,7 +239,7 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 |---|---:|---|
 | `FRIENDLY_PROCESSING_DISPLAY` | `True` | Use a compact, progress-bar-style display instead of a scrolling log. |
 | `USE_COLOR` | Automatic | Enables terminal colour when `sys.stdout.isatty()` is true. This is detected by the script, not a normal user-config constant. |
-| `SHOW_RAW_ANALYSIS` | `False` | Print Music Flamingo's full raw analysis for debugging. |
+| `SHOW_RAW_ANALYSIS` | `False` | Print MOSS-Music's full raw analysis for debugging. |
 | `DEBUG_MODEL_LOADING` | `False` | Show raw model-loading logs instead of a status line. |
 | `SHOW_OMNIZART_LOGS` | `False` | Allow Omnizart stdout/stderr through instead of suppressing it. |
 | `DEBUG_STEM_MIDI` | `False` | Print verbose per-stem note-count debugging. |
@@ -255,21 +248,21 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 
 | Variable | Default | Description |
 |---|---|---|
-| `OLLAMA_URL` | `http://localhost:11434/api/chat` | Ollama chat endpoint. |
-| `OLLAMA_MODEL` | `muse-glimmer:30b-mlx` | Writer model used for the final response and general chat. Pull this model in Ollama, or change the name to another installed model. |
+| `OLLAMA_URL` | `"http://localhost:11434/api/chat"` | Ollama chat endpoint. |
+| `OLLAMA_MODEL` | `"muse-glimmer:30b-mlx"` | Writer model used for the final response and general chat. Pull this model in Ollama, or change the name to another installed model. |
 | `OLLAMA_NUM_CTX` | `131072` | Context-window size requested from Ollama. |
 | `OLLAMA_SUPPORTS_IMAGES` | `True` | Whether the selected writer model is treated as accepting image input. |
 | `OLLAMA_INTERACTIVE_KEEP_ALIVE` | `"30m"` | How long Ollama keeps the interactive writer model loaded after a request. |
-| `MF_MODEL_ID` | `nvidia/music-flamingo-hf` | Hugging Face model ID for Music Flamingo, the audio-listening model. |
-| `MF_TORCH_DTYPE` | `torch.bfloat16` | PyTorch data type for Music Flamingo. |
-| `WHISPER_MODEL_ID` | `openai/whisper-large-v3` | Whisper model used for lyric transcription/timing. |
+| `MOSS_MODEL_ID` | `"OpenMOSS-Team/MOSS-Music-8B-Instruct"` | Hugging Face model ID for MOSS-Music, the audio-listening model. |
+| `MOSS_TORCH_DTYPE` | `torch.bfloat16` | PyTorch data type for MOSS-Music. |
+| `WHISPER_MODEL_ID` | `"openai/whisper-large-v3"` | Whisper model used for lyric transcription/timing. |
 | `WHISPER_TORCH_DTYPE` | `torch.float16` | PyTorch data type for Whisper. |
-| `DEMUCS_MODEL` | `htdemucs_6s` | Demucs source-separation model. |
+| `DEMUCS_MODEL` | `"htdemucs_6s"` | Demucs source-separation model. |
 | `DEMUCS_SHIFTS_FAST` | `0` | Demucs test-time shifts in fast mode (`0` disables shift ensembling). |
 | `DEMUCS_SHIFTS_DEEP` | `2` | Demucs test-time shifts in deep mode. More shifts can improve separation at additional cost. |
-| `MF_EMPTY_RETRY_SYSTEM_PROMPT` | `True` | Retry Music Flamingo's main pass with the full instructions as a system prompt if the first answer is empty. Adds a generation only for affected tracks. |
-| `MF_EMPTY_RETRY_ADD_DESCRIPTION` | `True` | Add a description pass if that recovery answer lacks enough descriptive fields. Adds a generation only for affected tracks. |
-| `MF_LOOP_GUARD` | `True` | Stop runaway repetitive lines in Music Flamingo's main report so other fields can be produced. |
+| `MOSS_EMPTY_RETRY_SYSTEM_PROMPT` | `True` | Retry MOSS-Music's main pass with the full instructions as a system prompt if the first answer is empty. Adds a generation only for affected tracks. |
+| `MOSS_EMPTY_RETRY_ADD_DESCRIPTION` | `True` | Add a description pass if that recovery answer lacks enough descriptive fields. Adds a generation only for affected tracks. |
+| `MOSS_LOOP_GUARD` | `True` | Stop runaway repetitive lines in MOSS-Music's main report so other fields can be produced. |
 | `UNLOAD_OMNIZART_AFTER_STEM_MIDI` | `True` | Unload Omnizart after stem/MIDI transcription to reduce memory use. |
 | `OMNIZART_MUSIC_MODEL_BY_STEM` | `{"bass": None, "guitar": None, "piano": None, "other": None}` | Optional Omnizart mode/checkpoint override per stem. `None` keeps the default model; only use modes/checkpoints installed in your Omnizart setup. |
 
@@ -277,12 +270,12 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 
 | Variable | Default | Description |
 |---|---:|---|
-| `FAST_MODE` | `False` | Skip the Music Flamingo self-check pass to save time and one generation. |
+| `FAST_MODE` | `False` | Skip the MOSS-Music self-check pass to save time and one generation. |
 | `DEEP_MODE` | `False` | Use larger token budgets and two extra analysis categories; more thorough but slower. |
-| `PARALLEL_ANALYSIS` | `True` | Run independent analysis tasks concurrently where supported. Background failures are retried in order. |
+| `PARALLEL_ANALYSIS` | `True` | Run independent analysis tasks concurrently where supported. Background failures are retried in order. URL and excerpt analyses run sequentially. |
 | `ENABLE_OBJECTIVE_AUDIO_REPORT` | `True` | Include signal-processing-based objective audio measurements. |
 | `COMPACT_OBJECTIVE_REPORT` | `True` | Use a compact objective-report format. |
-| `SKIP_MF_LYRICS_WHEN_TAGS_PRESENT` | `True` | Avoid asking Music Flamingo to transcribe lyrics when usable lyrics are already available from tags. |
+| `SKIP_LYRICS_TRANSCRIPTION_WHEN_TAGS_PRESENT` | `True` | Skip lyric transcription when usable embedded lyrics are available; lyric timing can still require Whisper. |
 | `ENABLE_VOCAL_PASS` | `True` | Run the dedicated vocal-analysis pass. |
 | `ENABLE_VOCAL_OBJECTIVE_REPORT` | `True` | Include objective vocal measurements. |
 | `ENABLE_VOCAL_CONFIRMATION_PASS` | `True` | Run the additional vocal classification/confirmation pass when needed. |
@@ -301,7 +294,7 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 | `WHISPER_WORD_TIMING` | `True` | Use Whisper word timing to help align lyrics with the section map. |
 | `WHISPER_EXPLICIT_TEMPERATURE` | `False` | Explicitly set Whisper's anti-hallucination temperature settings. Enabling it can change lyric text and timing; the default leaves it off for compatibility. |
 | `WHISPER_TIMING_RETRY` | `True` | Retry word timing when the first timing result is too weak. |
-| `MF_CONSISTENT_REPORT` | `False` | Ask the listening model for a consistent field-based report. This can change the evidence supplied by the model; normally leave off unless testing. |
+| `MOSS_CONSISTENT_REPORT` | `False` | Ask the listening model for a consistent field-based report. This can change the evidence supplied by the model; normally leave off unless testing. |
 | `REPORT_FIXED_LAYOUT` | `True` | Standardise the saved analysis fields and their order when writing JSON files. |
 | `REPORT_FILL_FROM_EVIDENCE` | `True` | Fill otherwise-empty report fields from suitable evidence already present in the analysis. |
 | `REPORT_FIXED_BLOCKS` | `True` | Keep key report blocks present and in a consistent location in saved JSON. |
@@ -316,14 +309,14 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 | `PRODUCTION_ANALYSIS_ENABLED` | `True` | Run the dedicated production-era analysis. |
 | `ENABLE_COVER_ART_DESCRIPTION` | `True` | Describe embedded cover art when available. |
 | `ENABLE_SINGER_IDENTITY_RESOLUTION` | `True` | Resolve the singer's likely identity from audio and available context. |
-| `ENABLE_IMAGE_OBSERVATIONS_FOR_GENERAL` | `False` | Allow image observations in ordinary general-chat turns. This is off by default (**was `True` in the previous list**); track cover-art description is controlled separately. |
+| `ENABLE_IMAGE_OBSERVATIONS_FOR_GENERAL` | `False` | Allow image observations in ordinary general-chat turns. This is off by default; track cover-art description is controlled separately. |
 | `ENABLE_WIKI_CONTEXT` | `True` | Add locally indexed Wikipedia background to relevant questions when the database is available. |
 
 ## CLAP sonic-similarity embeddings
 
 | Variable | Default | Description |
 |---|---:|---|
-| `CLAP_MODEL_ID` | `laion/larger_clap_music_and_speech` | CLAP model used to produce audio embeddings. |
+| `CLAP_MODEL_ID` | `"laion/larger_clap_music_and_speech"` | CLAP model used to produce audio embeddings. |
 | `CLAP_EMBEDDING_DIMENSION` | `512` | Expected embedding size. Normally leave unchanged for the configured model. |
 | `CLAP_SAMPLE_RATE` | `48000` | Audio sample rate used for embedding extraction. |
 | `CLAP_WINDOW_SECONDS` | `10.0` | Length of each audio window. |
@@ -340,13 +333,13 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 | `INSTRUMENT_TAG_MIN_PROB` | `0.18` | Minimum probability for most instrument labels. |
 | `INSTRUMENT_TAG_TOP_K` | `4` | Maximum number of instrument tags kept per stem. |
 | `INSTRUMENT_TAG_GUITAR_MIN_PROB` | `0.35` | Higher probability threshold for guitar-family labels, which are noisier. |
-| `INSTRUMENT_TAG_STEMS` | `("other", "guitar", "piano", "bass", "drums")` | Stems that receive instrument tags. **Drums is now included.** |
+| `INSTRUMENT_TAG_STEMS` | `("other", "guitar", "piano", "bass", "drums")` | Stems that receive instrument tags. |
 | `INSTRUMENT_TAG_REQUIRE_STEM_ACTIVITY` | `True` | Suppress tags on near-empty stems unless the evidence is strong. |
 | `INSTRUMENT_TAG_MIN_NOTES_FOR_WEAK` | `8` | Minimum note count before weaker tags can be accepted. |
 | `INSTRUMENT_TAG_STRONG_PROB` | `0.45` | Probability above which stem-activity checks are relaxed. |
 | `INSTRUMENT_TAG_WINDOW_SECONDS` | `10.0` | Tagging window length; `None` means the whole clip. |
 | `INSTRUMENT_TAG_HOP_SECONDS` | `5.0` | Hop between tagging windows. |
-| `INSTRUMENT_TAG_MAX_WINDOWS` | `56` | Maximum windows sampled per clip (**was `40` in the previous list**). |
+| `INSTRUMENT_TAG_MAX_WINDOWS` | `56` | Maximum windows sampled per clip. |
 | `INSTRUMENT_TAG_NORMALIZE` | `True` | Peak-normalise each window before tagging. |
 | `INSTRUMENT_TAG_NORMALIZE_PEAK` | `0.95` | Target peak after normalisation. |
 | `INSTRUMENT_TAG_EVEN_COVERAGE` | `True` | Encourage coverage across a track rather than concentrating samples in one region. |
@@ -380,7 +373,7 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 
 | Variable | Default | Description |
 |---|---:|---|
-| `ESSENTIA_MAX_SECONDS` | `900.0` | Maximum track duration used for the main Essentia report (**was `300.0` in the previous list**). |
+| `ESSENTIA_MAX_SECONDS` | `900.0` | Maximum track duration used for the main Essentia report. |
 | `ESSENTIA_LOWLEVEL_MAX_SECONDS` | `60.0` | Maximum duration for low-level frame-based features. |
 | `ESSENTIA_FRAME_SIZE` | `4096` | Analysis frame size. |
 | `ESSENTIA_HOP_SIZE` | `2048` | Analysis hop size. |
@@ -393,8 +386,6 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 | `STEM_MIDI_EVENT_LOG_MAX_NOTES` | `24` | Maximum notes included in an event-log summary. |
 | `STEM_MIDI_MELODY_LINE_NOTES` | `24` | Maximum notes in a melody-line summary. |
 | `STEM_MIDI_DRUM_PATTERN_HITS` | `24` | Maximum hits in a drum-pattern summary. |
-| `STEM_MIDI_INCLUDE_EVENT_LOGS` | `False` | Include the detailed event logs. |
-| `STEM_MIDI_COMPACT_EVENT_FORMAT` | `True` | Use compact event formatting. |
 
 ## Vocal-classification thresholds
 
@@ -403,9 +394,9 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 | `VOCAL_CONFIRMATION_F0_THRESHOLD` | `210.0` | Fundamental-frequency threshold (Hz) used by vocal confirmation. |
 | `VOCAL_CONFIRMATION_WITHOUT_F0` | `True` | Allow confirmation without a reliable F0 estimate. |
 | `F0_MALE_HIGH_CONFIRM_HZ` | `260.0` | Male/adolescent lead median at or above this frequency can trigger confirmation. |
-| `F0_POST_PUBERTY_SOFT_CAP_HZ` | `350.0` | Median at or above this value weakens a post-puberty-male assignment based on pitch alone (**was `280.0` in the previous list**). |
-| `F0_POST_PUBERTY_HARD_CAP_HZ` | `350.0` | High-median cap for post-puberty/adolescent male labels (**was `320.0`**). |
-| `F0_MALE_ANY_HARD_CAP_HZ` | `350.0` | High-median cap for any male-tagged lead, including adolescent labels (**was `320.0`**). |
+| `F0_POST_PUBERTY_SOFT_CAP_HZ` | `350.0` | Median at or above this value weakens a post-puberty-male assignment based on pitch alone. |
+| `F0_POST_PUBERTY_HARD_CAP_HZ` | `350.0` | High-median cap for post-puberty/adolescent male labels. |
+| `F0_MALE_ANY_HARD_CAP_HZ` | `350.0` | High-median cap for any male-tagged lead, including adolescent labels. |
 | `F0_FEMALE_RECOVERY_MIN_HZ` | `320.0` | Minimum median pitch for the high-pitch male-tag recovery check to consider strong female confirmation. |
 | `F0_CHILD_SOFT_FLOOR_HZ` | `180.0` | A child-category assignment below this median should not be retained on pitch evidence alone. |
 
@@ -433,22 +424,21 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 | Variable | Default | Description |
 |---|---:|---|
 | `MAX_WRITER_IMAGES_PER_TURN` | `8` | Maximum images actually sent to Ollama in one request. |
-| `IMAGE_RETAIN_LAST_N_MESSAGES` | `8` | Retain image data for this many recent history messages (**replaces the old list's `MAX_STORED_IMAGES_IN_HISTORY` setting**). |
+| `IMAGE_RETAIN_LAST_N_MESSAGES` | `8` | Retain image data for this many recent history messages. |
 | `MAX_WRITER_HISTORY_MESSAGES` | `80` | Maximum writer-history messages retained. |
-| `MAX_MESSAGE_CHARS_FOR_OLLAMA` | `120000` | Maximum message length sent to Ollama (**was `60000` in the previous list**). |
+| `MAX_MESSAGE_CHARS_FOR_OLLAMA` | `120_000` | Maximum message length sent to Ollama. |
 | `HISTORY_CHAR_BUDGET_FACTOR` | `3.2` | Conservative characters-per-token estimate for trimming history. |
 
 ## Wikipedia context
 
 | Variable | Default | Description |
 |---|---:|---|
-| `ENABLE_WIKI_CONTEXT` | `True` | Add locally indexed Wikipedia context to relevant questions. |
-| `WIKI_DB_PATH` | `music_wiki_heavy.db` | Path to the local Wikipedia database. |
+| `WIKI_DB_PATH` | `"music_wiki_heavy.db"` | Path to the local Wikipedia database. |
 | `WIKI_DB_TIMEOUT_S` | `5.0` | Database timeout. |
 | `WIKI_CONTEXT_MAX_CHARS_PER_ARTICLE` | `1800` | Maximum characters taken from each article. |
 | `WIKI_CONTEXT_TOTAL_MAX_CHARS` | `5000` | Maximum total Wikipedia context block size. |
 | `WIKI_MAX_ARTICLES` | `6` | Maximum articles included in a context block. |
-| `WIKI_SEARCH_ROW_LIMIT` | `24` | Full-text-search result window (**was `8` in the previous list**). |
+| `WIKI_SEARCH_ROW_LIMIT` | `24` | Full-text-search result window. |
 | `WIKI_EXACT_TITLE_LOOKUP` | `True` | Try exact-title lookup in addition to body search. |
 | `WIKI_EXACT_TITLE_MAX_PER_REQUEST` | `8` | Maximum exact-title lookups per request. |
 | `WIKI_EXACT_TITLE_MAX_HITS` | `2` | Maximum hits retained per exact-title query. |
@@ -460,7 +450,6 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 
 | Variable | Default | Description |
 |---|---:|---|
-| `PRODUCTION_ANALYSIS_ENABLED` | `True` | Enable the dedicated production-era analysis. |
 | `PRODUCTION_EXCERPT_COUNT` | `8` | Number of audio excerpts used for this analysis. |
 | `PRODUCTION_EXCERPT_SECONDS` | `6.0` | Duration of each excerpt in seconds. |
 | `PRODUCTION_ENVELOPE_SR` | `22050` | Sample rate used by the production-envelope analysis. |
@@ -493,9 +482,207 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 | `DEFAULT_PERSONA_PROMPT` | *(see script)* | Default writer persona; custom personas can be set at runtime with `/persona`. |
 | `SAVE_DIR` | `./saved-songs` | Directory for saved track JSON files and associated assets. |
 
+
+## MOSS-Music loading and generation
+
+| Variable | Default | Description |
+|---|---|---|
+| `MOSS_MODEL_REVISION` | `None` | Optional Hugging Face model revision or commit hash; `None` uses the latest available revision. |
+| `MOSS_MUSIC_CODE_DIR` | `None` | Local MOSS-Music repository folder containing `src/modeling_moss_music.py`. `None` checks the same-named environment variable, then `MOSS-Music` beside the script, then `~/MOSS-Music`. |
+| `MOSS_ENABLE_TIME_MARKERS` | `True` | Enable elapsed-time markers in the listening model’s audio input for timestamped output. |
+| `MOSS_MAX_AUDIO_SECONDS` | `600` | Maximum seconds sent to MOSS-Music. This does not impose the same limit on Whisper, Demucs or signal processing. |
+| `MOSS_SHOW_PROGRESS` | `True` | Show listening-model generation progress and token speed. |
+| `MOSS_DECODING` | `"sampled"` | Decoding mode: `"sampled"` or `"greedy"`. Sampling with a fixed seed is the default to reduce repetition. |
+| `MOSS_TEMPERATURE` | `0.7` | Sampling temperature. |
+| `MOSS_TOP_P` | `0.8` | Nucleus-sampling probability cutoff. |
+| `MOSS_TOP_K` | `20` | Top-k sampling limit. |
+| `MOSS_SEED` | `1234` | Sampling seed; change it for a different repeatable draw on the same machine. |
+| `MOSS_GUIDED_FIELDS` | `True` | Have the script supply field names while MOSS-Music generates their values. |
+| `MOSS_NO_FIELD_COPYING` | `True` | Prevent long answers being copied between fields in the main report and self-check. |
+| `MOSS_FIELD_MAX_TOKENS` | `300` | Maximum generated tokens per field, also bounded by the remaining reply budget. |
+| `MOSS_SHORT_PROMPTS` | `True` | Use shorter prompts for era, vocal and vocal-confirmation passes. |
+| `MOSS_RETRY_ON_NON_ANSWER` | `True` | Retry a listening-model response that does not answer the requested analysis. |
+| `MOSS_LOW_TRUST_FIELDS` | `True` | Treat prompt echoes and stock example answers as unreliable evidence in the chat view. |
+
+
+## Whisper timing and lyric handling
+
+| Variable | Default | Description |
+|---|---|---|
+| `WHISPER_PROGRESS` | `True` | Show decoding-pass progress and memory readouts. |
+| `WHISPER_WORD_TIMING_SMEAR_S` | `20.0` | Line duration in seconds used to detect collapsed timing. |
+| `WHISPER_WORD_TIMING_DENSE_WPS` | `10.0` | Words-per-second threshold for implausibly dense timing; `0` disables this check. |
+| `WHISPER_WORD_LINE_GAP_S` | `0.6` | Pause length in seconds used to regroup timed words into lines. |
+| `WHISPER_WORD_LINE_MAX_S` | `8.0` | Maximum duration of a regrouped word-timed line. |
+| `WHISPER_WORD_STRIDE_DEDUPE` | `True` | Remove duplicated words from overlapping Whisper windows using their timestamps. |
+| `WHISPER_TIMING_RETRY_BELOW` | `0.35` | Lyric-match score below which timing recovery can be attempted. |
+| `WHISPER_TIMING_RETRY_GAIN` | `0.10` | Minimum score improvement required to accept recovered timing. |
+| `WHISPER_TIMING_MAX_CHUNK_S` | `20.0` | Maximum chunk duration used by the timing-quality check. |
+| `TAG_LYRICS_SANITY` | `True` | Reject very short or title/artist-only lyric tags so transcription can run instead. |
+
+
+## Memory, parallel processing and inference caches
+
+| Variable | Default | Description |
+|---|---|---|
+| `MOSS_MPS_CACHE_TRIM_EVERY` | `256` | Release unused MPS cache every this many generated MOSS tokens; `0` disables periodic trimming. |
+| `WHISPER_MPS_CACHE_TRIM_EVERY` | `256` | Release unused MPS cache every this many generated Whisper tokens; `0` disables periodic trimming. |
+| `WHISPER_RELEASE_BEFORE_LOAD` | `True` | Run full cleanup before loading Whisper and after each pass. |
+| `RELEASE_MOSS_LOCALS_BEFORE_UNLOAD` | `True` | Drop local references to the listening model before its unload cleanup. |
+| `MOSS_RELEASE_REFRESH_LOCALS` | `True` | Refresh the analysis function’s local-variable snapshot so it does not retain the unloaded model on affected Python versions. |
+| `GPU_CLEANUP_MAIN_THREAD_ONLY` | `True` | Restrict MPS cleanup to the main thread to avoid concurrent GPU cleanup races. |
+| `FRESH_STEM_STATE_PER_TRACK` | `True` | Reset per-track stem state before `/listen` analysis to prevent reuse of another track’s evidence. |
+| `OMNIZART_PREFETCH_PROCESS` | `True` | Run background Omnizart transcription in a separate process. |
+| `OMNIZART_PREFETCH_TIMEOUT_S` | `1800` | Timeout in seconds for the Omnizart helper process. |
+| `PANNS_BATCH_WINDOWS` | `8` | Maximum instrument-tagging windows processed together in one inference batch. |
+| `PANNS_WINDOW_CACHE_SIZE` | `12` | Number of window-probability results retained in the PANNs cache. |
+| `PANNS_TAG_STATS_CACHE_SIZE` | `32` | Number of PANNs tag-statistics results cached. |
+| `PANNS_QUIET_WINDOW_REL_DB` | `35.0` | Exclude tagging windows this far below the loudest window, in dB. |
+| `PANNS_QUIET_WINDOW_ABS_RMS` | `1e-4` | Absolute RMS floor for tagging windows. |
+
+
+## Discogs styles and genre / era checks
+
+| Variable | Default | Description |
+|---|---|---|
+| `ENABLE_DISCOGS_STYLES` | `True` | Add MAEST Discogs style classification. The script points to `python musiclyse_style_setup.py` for model setup; missing model assets cause this stage to be skipped. |
+| `DISCOGS_STYLE_MODEL_ID` | `"mtg-upf/discogs-maest-30s-pw-73e-ts"` | MAEST model used for Discogs style classification. |
+| `DISCOGS_STYLE_WINDOWS` | `5` | Number of 30-second windows sampled across the track and averaged. |
+| `DISCOGS_STYLE_TOP_K` | `5` | Maximum styles displayed in the style block. |
+| `DISCOGS_STYLE_MIN_PROB` | `0.10` | Minimum probability for displayed styles. |
+| `DISCOGS_STYLE_SAVE_TOP` | `40` | Number of strongest style scores retained in saved JSON. |
+| `GENRE_STYLE_NOTE` | `True` | Allow supported style labels to refine genre answers. |
+| `GENRE_STYLE_LED` | `True` | Refine or replace the chat-view recommended genre with sufficiently supported style evidence. |
+| `GENRE_STYLE_REFINE_MIN` | `0.35` | Minimum style confidence for refining a broad genre within its family. |
+| `GENRE_STYLE_REPLACE_MIN` | `0.30` | Minimum style confidence for replacing a genre family, with additional corroboration checks. |
+| `ERA_STYLE_CHECK` | `True` | Use a sufficiently confident period-specific style to check overly recent era estimates in the chat view. |
+| `ERA_STYLE_MIN` | `0.25` | Minimum style confidence for the era check. |
+| `ERA_STYLE_MAX_SPAN` | `25` | Maximum style heyday span in years for era checking. |
+| `REGIONAL_GENRE_GATE` | `True` | Require language or artist-background support for regional genre labels; suppress generic world/international labels. |
+| `GENRE_ERA_CHECK` | `True` | Check genre labels against the file’s year tag to avoid anachronistic labels. |
+| `GENRE_SYNTH_ROCK` | `True` | Combine supported rock-band and prominent synth evidence into a synth-rock reading. |
+| `GENRE_CHECK_IN_SAVED_ANALYSIS` | `True` | Include the genre-check warning at the top of saved analysis text. |
+
+
+## Chords, melody, key and tempo checks
+
+| Variable | Default | Description |
+|---|---|---|
+| `ENABLE_CHORD_PROGRESSION` | `True` | Run optional `lv-chordia` full-mix chord recognition and build per-section progressions; skipped if unavailable. |
+| `CHORD_PROGRESSION_DICTIONARY` | `"submission"` | Chord vocabulary: `"submission"`, `"ismir2017"` or `"full"`. |
+| `CHORD_PROGRESSION_IN_SAVED` | `True` | Rebuild a missing chord-progression block on load from saved chord segments. |
+| `CHORDS_MEASURED_LINE` | `True` | Combine measured stem chord lists with the listening model’s chords in a consistent report line. |
+| `HARMONY_MELODY_BY_SECTION` | `True` | Describe measured chords, lead melody and their relationship for each section. |
+| `MELODY_IN_KEY_BY_SECTION` | `True` | Describe each section’s lead line using scale degrees, phrase endings and recurring figures. |
+| `MELODY_IN_KEY_MIN_FIT` | `0.75` | Minimum share of held-note time fitting the key before a part is described in scale degrees. |
+| `MELODICISM_MEASURED` | `True` | Derive melodicism descriptions from measured vocal range, held notes and timed word rate. |
+| `KEY_MODE_FROM_ESSENTIA` | `True` | Use Essentia’s mode when the listening model gives the same root without a valid mode. |
+| `KEY_CENTRE_CHECK` | `True` | Check whether note evidence supports a Mixolydian centre on the reported major key’s fifth. |
+| `KEY_FIT_CHECK` | `True` | Check a nearby key against transcribed note fit and bass tonic evidence. |
+| `KEY_NOTE_CHECK` | `True` | Check conflicting listening-model and Essentia keys against transcribed pitched notes. |
+| `KEY_SCALE_CHECK` | `True` | Use distinguishing scale notes to check neighbouring-key assignments. |
+| `KEY_CHANGE_CHECK` | `True` | Detect supported late key changes and report the starting key plus modulation. |
+| `FULL_BAND_TEMPO_CHECK` | `True` | Re-measure suitably slow, high-frequency-rich tracks at full bandwidth to recover a missed faster pulse. |
+| `FULL_BAND_TEMPO_SLOW_BPM` | `80.0` | Both detectors must read below this BPM for the full-bandwidth check. |
+| `FULL_BAND_TEMPO_MIN_HF_SHARE` | `0.02` | Minimum high-frequency energy share for the full-bandwidth tempo correction. |
+| `TEMPO_LISTENING_CHECK` | `True` | Reject unhelpful model tempo evidence and use measured beat-spacing consistency to resolve conflicts. |
+| `TEMPO_SNARE_TIEBREAK` | `True` | Use a measured snare backbeat to help settle half/double-time ambiguity. |
+| `TEMPO_OCTAVE_PAIR_CHECK` | `True` | Check detector octave pairs against the listening-model estimate and snare evidence. |
+| `TEMPO_MEASURED_OCTAVE_PAIR` | `True` | Let two octave-related measured tempos decide when the listening-model estimate matches neither. |
+| `TEMPO_COPY_CHECK` | `True` | Do not count the listening model’s tempo as independent corroboration when it exactly copies a detector reading shown in its prompt. |
+
+
+## Additional vocal and instrument evidence controls
+
+| Variable | Default | Description |
+|---|---|---|
+| `VOCAL_FREE_TEXT_GENDER` | `True` | Use agreeing free-form vocal descriptions when structured vocal passes do not settle the profile. |
+| `VOCAL_PROBABILITY_VETO` | `True` | Keep the profile open when structured vocal probabilities strongly contradict free-form descriptions. |
+| `IDENTITY_FROM_ARTIST_WHEN_OPEN` | `True` | Allow documented solo-artist identity to resolve an otherwise open age/gender category. |
+| `VOCAL_DEEPENED_MAX_MEDIAN_HZ` | `300.0` | Median-pitch threshold used in the young-male deepened-voice check. |
+| `YOUNG_VOICE_CONFIRM_FLIP` | `True` | Preserve an unbroken-voice reading in the specified young-male, high-pitch confirmation-conflict case. |
+| `VOCAL_PITCH_OCTAVE_TOL_ST` | `1.5` | Tolerance in semitones around a one-octave disagreement between pitch readings. |
+| `SECTION_VOICE_CHECK` | `True` | Check candidate stretches for a second lead gender using pitch evidence and short listening-model passes. |
+| `SECTION_VOICE_MIN_SHIFT_ST` | `4.0` | Minimum pitch shift in semitones for candidate regions. |
+| `SECTION_VOICE_MIN_REGION_S` | `12.0` | Minimum duration in seconds of a candidate region. |
+| `SECTION_VOICE_SINGLE_REGION_MIN_S` | `24.0` | Minimum duration for a single region to support the stronger one-region decision. |
+| `SECTION_VOICE_CLIP_S` | `15.0` | Length in seconds of listening-model clips for region checks. |
+| `SECTION_VOICE_MAX_REGIONS` | `3` | Maximum candidate regions checked. |
+| `TAG_FEATURE_SHARED_LEAD` | `True` | Use featured-singer credits to correct an identity result that says there is only one lead. |
+| `GROUP_LEAD_STAYS_SEVERAL` | `True` | Keep several leads when identity reasoning describes a vocal group without identifying one lead. |
+| `UNBROKEN_VOICE_IDENTITY_CHECK` | `True` | Check young-male identity against release-age evidence and an unbroken/female-sounding audio reading. |
+| `SANITIZE_VOCAL_CATEGORY_LANGUAGE` | `True` | Clean up internal vocal-category wording in user-facing language. |
+| `GUITAR_PROBE_ENABLED` | `True` | Enable the dedicated guitar-presence probe. |
+| `ACOUSTIC_GUITAR_CHECK` | `True` | Check unsupported electric-guitar claims against consistently acoustic tagging evidence. |
+| `INSTRUMENT_REED_STRONG_LEAD` | `True` | Preserve strongly supported reed-like leads and distinguish likely chordal synth-pad tags. |
+| `REED_STRONG_LEAD_MIN_PCT` | `75` | Minimum tag percentage for the strong reed-lead check. |
+| `REED_STRONG_LEAD_MIN_WINDOW_SHARE` | `0.75` | Minimum share of windows supporting a strong reed lead. |
+| `REED_PAD_MIN_POLYPHONY` | `4.0` | Minimum polyphony used to identify a likely chordal pad behind a rejected reed tag. |
+| `INSTRUMENTATION_COLLAPSE_SPANS` | `True` | Collapse repeated timestamped instrument names into one entry per instrument. |
+| `STEM_NOTE_MIN_ABS_RMS` | `0.001` | Reject notes below this RMS in their stem as likely separation residue. |
+| `BEAT_GRID_BARS` | `2` | Number of bars shown in a beat grid. |
+| `BEAT_GRID_SUBDIV` | `4` | Cells per beat; `4` gives sixteenth-note resolution. |
+| `BEAT_GRID_MIN_HITS` | `6` | Minimum hits for beat-grid reporting. |
+
+
+## Chat evidence and saved-track behaviour
+
+| Variable | Default | Description |
+|---|---|---|
+| `WRITER_CASUAL_VOICE` | `True` | Encourage plain conversational wording and remove unnecessary source-citing sentence openers. |
+| `WRITER_RULES_DEV45` | `True` | Enable writer rules for style, regional genre, era, chord-progression and melody evidence blocks. |
+| `FOLLOWUP_QUESTION_NOTES` | `True` | Apply relevant question-specific evidence notes to single-track follow-up questions. |
+| `SOUND_SOURCE_NOTE` | `True` | Require sound descriptions to follow measured track evidence while allowing artist and release background. |
+| `BEAT_DRAWING_NOTE` | `True` | For an unspecified drum-drawing request, show grids for parts with different grooves. |
+| `BEAT_DRAWING_MAX` | `4` | Maximum differing part grids requested by the beat-drawing note. |
+| `LOAD_CHECKS_TO_CHAT` | `True` | Send load-time corrected analysis to the chat model. |
+| `STRUCTURE_SAVE_REPLAY` | `True` | Save inputs used to replay the structure map’s final stage. |
+
+## Configurable command names
+
+The slash-command spellings above can be changed in `USER CONFIGURATION`:
+
+| Variable | Default |
+|---|---|
+| `LISTEN_FLAG` | `"/listen"` |
+| `RELISTEN_FLAG` | `"/relisten"` |
+| `CORRECT_FLAG` | `"/correct"` |
+| `SAVE_FLAG` | `"/save"` |
+| `LOAD_FLAG` | `"/load"` |
+| `LOADCOMPARE_FLAG` | `"/loadcompare"` |
+| `CLEAR_FLAG` | `"/clear"` |
+| `CLEAR_ALL_FLAG` | `"/clearall"` |
+| `BATCH_FLAG` | `"/batch"` |
+| `PERSONA_FLAG` | `"/persona"` |
+| `DEBUG_FLAG` | `"/debug"` |
+
+## Environment overrides
+
+These are actual environment variables, unlike the Python constants above. Set them before starting the script.
+
+| Variable | Script fallback | Description |
+|---|---|---|
+| `MOSS_MUSIC_CODE_DIR` | Search beside the script, then `~/MOSS-Music` | Repository location when the Python constant of the same name is `None`. A configured Python path takes priority. |
+| `PYTORCH_MPS_HIGH_WATERMARK_RATIO` | `"0.0"` | PyTorch MPS allocator upper watermark; this fallback removes its upper allocation limit. An existing environment value wins. |
+| `PYTORCH_MPS_LOW_WATERMARK_RATIO` | `"0.6"` | MPS allocator cleanup watermark. An existing environment value wins. |
+
+## Changed since 0.5
+
+| Previous name | 0.6 name |
+|---|---|
+| `MF_MODEL_ID` | `MOSS_MODEL_ID` — now `OpenMOSS-Team/MOSS-Music-8B-Instruct` |
+| `MF_TORCH_DTYPE` | `MOSS_TORCH_DTYPE` |
+| `MF_EMPTY_RETRY_SYSTEM_PROMPT` | `MOSS_EMPTY_RETRY_SYSTEM_PROMPT` |
+| `MF_EMPTY_RETRY_ADD_DESCRIPTION` | `MOSS_EMPTY_RETRY_ADD_DESCRIPTION` |
+| `MF_LOOP_GUARD` | `MOSS_LOOP_GUARD` |
+| `MF_CONSISTENT_REPORT` | `MOSS_CONSISTENT_REPORT` |
+| `SKIP_MF_LYRICS_WHEN_TAGS_PRESENT` | `SKIP_LYRICS_TRANSCRIPTION_WHEN_TAGS_PRESENT` |
+
+The listening-model change also requires the MOSS-Music model code; changing the model ID alone is not sufficient. Earlier saved JSONs remain readable through the script’s compatibility handling.
+
 ---
 
-**Not exhaustively listed:** Musiclyse 0.5 has additional fine-grained `STRUCTURE_*`, vocal, instrument-probe and algorithm-tuning constants in its `USER CONFIGURATION` section. They are omitted here where they are primarily implementation-level thresholds rather than practical day-to-day settings. Internal data structures and prompt-template bodies (for example `NOTE_NAMES`, `GM_DRUM_PITCH_TYPE`, `MF_FULL_ANALYSIS_PROMPT`, and the default persona text itself) are also not reproduced in this guide.
+**Scope:** This remains a practical configuration reference, not an exhaustive dump of every tuning constant. Additional `STRUCTURE_*` rules, instrument-probe thresholds, vocal/genre safeguards and algorithm thresholds are documented beside their assignments in `USER CONFIGURATION`. Runtime state, lookup tables and full prompt bodies are omitted. `DEFAULT_PERSONA_PROMPT` is defined elsewhere in the script; use `/persona` for routine persona changes.
 
 
 # Possible future features:
@@ -503,12 +690,9 @@ This reference is updated for `musiclyse-0.5.py`. Most configurable settings are
 These are a few things that I want to implement in the future but so far haven't done
 
 * Separate the configuration flags from the main script in a different file
-* Improved melody and song key detection
 * Most of the project was vibecoded with the help of several LLMs, and while the current build appears to be fully usable, those with better coding knowledge could probably help patch any issues.
-* Improved timestamp labelling (timestamp detection itself has been improved a lot in 0.5)
-* Improved estimated era accuracy for songs without a year tag
-* Update the script for Python 3.11
-* Potentially look into replacing Music Flamingo with a more reliable alternative listening model that scores higher in benchmarks and which is not as prone to hallucinating gibberish
+* Further improved timestamp labelling
+* Further improved estimated era accuracy for songs without a year tag
 
 
 
