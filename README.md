@@ -17,7 +17,7 @@ Musiclyse is a Python script designed for high-spec Macs (it is easily portable 
 
 # Key features:
 
-The following features are all included in Musiclyse 0.6:
+The following features are all included in Musiclyse 0.6.1:
 
 * Beat, melody, genre, vocal, song key, song structure, scale and era analysis. Accuracy for many things has been significantly improved since 0.3.
 * Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
@@ -33,6 +33,7 @@ The following features are all included in Musiclyse 0.6:
 
 ## Version history:
 
+* 2026/10/28 - Musiclyse 0.6.1. A patch that makes improvements to vocal identity recognition. If you already have 0.6 installed, you can simply copy the 0.6.1 main script and export files to the same folder and run as before without any reinstall needed. Some tracks where there is conflicting evidence may take a bit longer to resolve the vocalist identity.
 * 2026/10/27 - Musiclyse 0.6. Now uses Python 3.11 (due to the end of Python 3.10 support). Replaced Music Flamingo with MOSS-Music as the listening model, which scores higher in benchmarks and is less prone to erratic hallucinations (being built on Qwen 3 8B instead of Qwen 2.5 7B). Mood and style detection should now be noticeably more detailed. This does require a different installation process to before. Noticeable improvements to timestamp and song section detection accuracy, as well as song key and BPM detection accuracy. Refined the .json-to-txt export script to take into account the updates and improvements made. Much improved genre classification. Fixed a number of memory caching and disk swap bugs that were causing high memory pressure on Macs with 64GB RAM. You should notice that songs process noticeably faster than in 0.5 (which brought down times noticeably from 0.4). Refinements to vocal identity detection. Implemented a system attempting to allow output LLMs to discuss music theory in a song based on the extracted MIDI and time signature information, notably things like chord progressions. Added a new install script that should make the software easier to setup.
 * 2026/10/15 - Musiclyse 0.5. Makes various improvements from 0.4.
 * 2026/09/03 - Musiclyse 0.4. Implemented Whisper transcription for lyrics, replacing Music Flamingo for this task (you will need to download a new model). Added CLAP embeddings to further help determine song similarity in comparisons (this also requires a new model). Further refined instrument and melody recognition capabilities. Improved song structure recognition with more accurate timestamps. Further refined vocalist recognition capabilities. Musiclyse can now talk about where instruments are in a track and output drum grooves. Implemented a flag in the script for full MIDI analysis (at the expense of using more tokens). Fixed an issue that was truncating the middle of the system prompts, reducing output accuracy (if your token context window is set too low, you will now see a warning about prompt truncation on startup). Fixed an issue that was causing all tracks to be treated as mono. Implemented mode detection for analysed songs. Improved custom persona functionality so that custom personas are much less likely to know about things they would not be aware of, while still being able to talk about topics they are aware of. Improved era detection for songs without metadata. Reduced the likelyhood of a couple of other Music Flamingo/Qwen 2.5 7B hallucination bugs. Wikipedia database lookup logic has been noticeably improved as a result of debugging (it uses the same database as 0.3), and now produces relevant results for both songs when comparing tracks. Fixed problems with guitar being wrongly identified as not present, and organ incorrectly identified. Fixed filename import and .json extension requirement issues with /loadcompare. Fixed Ollama caching problem to make long conversations faster (this may cause old messages to disappear from the context suddenly rather than "fade" away. Fixed a bug that caused the script to crash when loading a model without vision support, or when loading an invalid model. Fixed a problem whereby the script would crash on song or image import where running with a non-vision capable output LLM. Fixed a problem whereby the script would crash if a non-valid output model was defined.
@@ -151,7 +152,7 @@ Musiclyse: That made my day — glad it landed how you wanted. Always happy to n
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
 
-# Manual Installation for 0.6 (for MacOS):
+# Manual Installation for 0.6.1 (for MacOS):
 
 1: Ensure Python 3.11 is installed on your system
 
@@ -165,7 +166,7 @@ Due to the nature of what it's doing, it's intended to be run on powerful machin
 brew install ollama ffmpeg portaudio
 ```
 
-4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.6.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
+4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.6.1.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
 
 ```
 ollama serve
@@ -193,10 +194,10 @@ omnizart download-checkpoints
 9: Run the software:
 
 ```
-python musiclyse-0.6.py
+python musiclyse-0.6.1 .py
 ```
 
-# Configurable Variables & Flags in Musiclyse 0.6
+# Configurable Variables & Flags in Musiclyse 0.6.1
 
 ## Command-line
 
@@ -471,6 +472,7 @@ python musiclyse-0.6.py
 | `BATCH_UNLOAD_OLLAMA` | `True` | Unload the Ollama writer model during heavy batch-analysis stages. |
 | `BATCH_OLLAMA_KEEP_ALIVE` | `0` | `keep_alive` for short batch helper requests; `0` unloads immediately. |
 | `BATCH_PRE_IDENTITY_SETTLE_S` | `5.0` | Wait before the identity/save stage to let memory settle. |
+| `SINGER_IDENTITY_REUSE_BATCH_MODEL` | `False` | Experimental batch option to retain the writer model briefly between singer-identity requests instead of unloading after each request. Disabled by default; the default retains the established request-by-request unloading behaviour. |
 
 ## Persona / prompts / saved files
 
@@ -635,6 +637,35 @@ python musiclyse-0.6.py
 | `LOAD_CHECKS_TO_CHAT` | `True` | Send load-time corrected analysis to the chat model. |
 | `STRUCTURE_SAVE_REPLAY` | `True` | Save inputs used to replay the structure map’s final stage. |
 
+## Additional vocal-presence and co-lead controls in 0.6.1
+
+| Variable | Default | Description |
+|---|---:|---|
+| `SECTION_VOICE_CONFLICT_RECOVERY` | `True` | Enable recovery checks when the whole-track vocal passes disagree on lead gender. |
+| `SECTION_VOICE_COVERAGE_CHECK` | `True` | Sample full-mix clips across the track to check for additional leads, including when the whole-track passes agree. Reliable pitch tracking is not required for this coverage path. |
+| `SECTION_VOICE_RECOVERY_MAX_CLIPS` | `12` | Maximum initial clips selected by the coverage/recovery sampler. Gap checks, corroboration and direct comparisons can add further requests. |
+| `SECTION_VOICE_RECOVERY_GAP_CLIPS` | `8` | Maximum additional six-second gap clips used when conflicting lead samples lack repeated support. `0` disables this extra gap sampling. |
+| `SECTION_VOICE_RECOVERY_CLIP_S` | `12.0` | Target duration in seconds of the initial coverage/recovery clips. Additional checks can use different durations. |
+| `INSTRUMENTAL_FULL_COVERAGE_CHECK` | `True` | Run a dedicated human-voice presence check across the full mix when all sampled lead checks fail. Speech, chanting, rap and wordless singing count as human vocals. An absence verdict requires high-confidence negative coverage; a failed lead check alone does not establish an instrumental. |
+| `INSTRUMENTAL_EXTRA_PRESENCE_RETRY` | `True` | Allow an extra subdivision of ambiguous presence-check windows. Setting this to `False` can improve vocal identity detection speeds at the expense of accuracy on certain tracks by reducing presence verification; more results may remain unresolved. It does not change the Wikipedia lookup or directly disable co-lead checks. |
+| `INSTRUMENTAL_PRESENCE_MAX_CLIPS` | `90` | Maximum listening-model requests for a full-mix presence-verification run, including retries and its positive-vote corroboration. If full coverage cannot be completed confidently, the check cannot declare the track instrumental. |
+| `PRESERVE_UNBROKEN_COLEAD_IDENTITY` | `True` | Preserve a supported unbroken male identity when resolving confirmed mixed leads, including a separately documented female co-lead. Female-sounding samples alone do not establish a female singer's identity. |
+
+## Additional structure-label control in 0.6.1
+
+| Variable | Default | Description |
+|---|---:|---|
+| `STRUCTURE_RETURNING_PRECHORUS_LABELS` | `True` | Allow a returning section to receive a pre-chorus label when it closely matches repeated earlier pre-choruses and passes the structural and lyric checks. This rule changes labels and numbering, not section boundaries. |
+
+## Behaviour notes for 0.6.1
+
+- Failed vocal-presence corroboration can leave human vocal presence unresolved. In that case the pipeline skips Whisper transcription and singer-identity resolution, and the report/export withholds unsupported generated lyric and identity blocks. This is not automatically an instrumental verdict.
+- Missed co-lead recovery can use additional mix/stem checks and two disjoint longer-context clips. Confirming mixed leads still requires corroboration and direct different-person comparisons. If sampled male and female leads disagree without sufficient confirmation, the identity/count is qualified as uncertain rather than confidently reported as one singer.
+- Untagged tracks can record an accepted audio-only vocalist category without inventing a named performer. An unreliable pitch reading cannot overturn two agreeing, highly confirmed adult-male vocal passes under the supported recovery conditions.
+- Cover-art description requests preserve the supplied image through retries and do not fall back to a text-only description. A model reply claiming no image was attached is not saved as a visual observation. The existing artwork file can still be saved if a usable description is unavailable.
+- Skipping transcription removes lyric timing from the structure detector's inputs. This can change section counts and boundary times even though the vocal-presence changes do not edit the section algorithm itself.
+- These behaviours do not introduce additional command-line options. The variables in this reference are Python configuration constants unless explicitly listed under **Environment overrides**.
+
 ## Configurable command names
 
 The slash-command spellings above can be changed in `USER CONFIGURATION`:
@@ -665,7 +696,7 @@ These are actual environment variables, unlike the Python constants above. Set t
 
 ## Changed since 0.5
 
-| Previous name | 0.6 name |
+| Previous name | 0.6.1 name |
 |---|---|
 | `MF_MODEL_ID` | `MOSS_MODEL_ID` — now `OpenMOSS-Team/MOSS-Music-8B-Instruct` |
 | `MF_TORCH_DTYPE` | `MOSS_TORCH_DTYPE` |
