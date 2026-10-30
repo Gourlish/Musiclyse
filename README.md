@@ -17,7 +17,7 @@ Musiclyse is a Python script designed for high-spec Macs (it is easily portable 
 
 # Key features:
 
-The following features are all included in Musiclyse 0.6.1:
+The following features are all included in Musiclyse 0.6.2:
 
 * Beat, melody, genre, vocal, song key, song structure, scale and era analysis. Accuracy for many things has been significantly improved since 0.3.
 * Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
@@ -29,10 +29,11 @@ The following features are all included in Musiclyse 0.6.1:
 * Create your own personas and hear their opinions about songs, as well as testing their knowledge.
 * Import two tracks together to compare them easily via both musical and sonic signature analysis.
 * Specify a range (x seconds to y seconds) in a track to analyse for faster processing and more precise analysis.
-* Export your .json files to specially formatted .txt files, allowing any general purpose LLM to "listen" to music. You can do this via musiclyse_export.py.
+* Export your .json files to specially formatted .txt files, allowing any general purpose LLM to "listen" to music and have highly contextual discussions about one or more songs. You can do this via musiclyse_export.py.
 
 ## Version history:
 
+* 2026/10/30 - Musiclyse 0.6.2. Brings major improvements to the export script, allowing for more in-depth and accurate conversations about tracks with general purpose LLMs. Fixes a number of minor bugs in the main script, but changes little in the song analysis pipeline.
 * 2026/10/28 - Musiclyse 0.6.1. A patch that makes improvements to vocal identity recognition. If you already have 0.6 installed, you can simply copy the 0.6.1 main script and export files to the same folder and run as before without any reinstall needed. Some tracks where there is conflicting evidence may take a bit longer to resolve the vocalist identity.
 * 2026/10/27 - Musiclyse 0.6. Now uses Python 3.11 (due to the end of Python 3.10 support). Replaced Music Flamingo with MOSS-Music as the listening model, which scores higher in benchmarks and is less prone to erratic hallucinations (being built on Qwen 3 8B instead of Qwen 2.5 7B). Mood and style detection should now be noticeably more detailed. This does require a different installation process to before. Noticeable improvements to timestamp and song section detection accuracy, as well as song key and BPM detection accuracy. Refined the .json-to-txt export script to take into account the updates and improvements made. Much improved genre classification. Fixed a number of memory caching and disk swap bugs that were causing high memory pressure on Macs with 64GB RAM. You should notice that songs process noticeably faster than in 0.5 (which brought down times noticeably from 0.4). Refinements to vocal identity detection. Implemented a system attempting to allow output LLMs to discuss music theory in a song based on the extracted MIDI and time signature information, notably things like chord progressions. Added a new install script that should make the software easier to setup.
 * 2026/10/15 - Musiclyse 0.5. Makes various improvements from 0.4.
@@ -152,7 +153,7 @@ Musiclyse: That made my day — glad it landed how you wanted. Always happy to n
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
 
-# Manual Installation for 0.6.1 (for MacOS):
+# Manual Installation for 0.6.2 (for MacOS):
 
 1: Ensure Python 3.11 is installed on your system
 
@@ -166,7 +167,7 @@ Due to the nature of what it's doing, it's intended to be run on powerful machin
 brew install ollama ffmpeg portaudio
 ```
 
-4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.6.1.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
+4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.6.2.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
 
 ```
 ollama serve
@@ -194,10 +195,10 @@ omnizart download-checkpoints
 9: Run the software:
 
 ```
-python musiclyse-0.6.1 .py
+python musiclyse-0.6.2 .py
 ```
 
-# Configurable Variables & Flags in Musiclyse 0.6.1
+# Configurable Variables & Flags in Musiclyse 0.6.2
 
 ## Command-line
 
@@ -216,7 +217,7 @@ python musiclyse-0.6.1 .py
 |---|---|
 | `/listen <question>` | Analyse the current track; the first full analysis is cached for follow-up questions. |
 | `/listen <path or URL> <question>` | Switch to another track and analyse it. |
-| `/listen <path> [start-end] <question>` | Analyse an audio excerpt, with the window in seconds; e.g. `/listen song.mp3 [30-60] analyse the solo`. An excerpt cannot be saved as a full-track scan. |
+| `/listen <path> [start-end] <question>` | Analyse an audio excerpt, with the window in seconds or minutes:seconds; e.g. `/listen song.mp3 [30-60] analyse the solo` or `/listen song.mp3 [1:30-2:00] analyse the solo`. Use a dash between minutes:seconds times; `[1:30]` still means 1–30 seconds. An excerpt cannot be saved as a full-track scan. |
 | `/relisten [<path or URL>] <question>` | Force a fresh full analysis instead of reusing the cache; a path/URL can be supplied to switch tracks. |
 | `/correct field=value[, field=value…]` | Record a user-confirmed fact that overrides the analysis for the current track (e.g. `/correct year=1966`). |
 | `/save=filename.json` | Save technical details for the most recently scanned full track in `saved-songs/` (or the configured `SAVE_DIR`). |
@@ -466,6 +467,7 @@ python musiclyse-0.6.1 .py
 |---|---:|---|
 | `BATCH_PAUSE_BETWEEN_TRACKS_S` | `20.0` | Pause between tracks during `/batch` to let memory settle. |
 | `BATCH_RETRY_CRASHED_ANALYSIS` | `True` | Retry a track once in a fresh process if its analysis process crashes. |
+| `BATCH_TRACK_TIMEOUT_S` | `None` | Optional time limit in seconds for each subprocess stage of a `/batch` track. `None` means no limit. With split-process batch mode, the limit applies separately to analysis and identity/save. A timed-out stage is stopped and the track is reported as failed. Applies when `BATCH_ISOLATE_PER_TRACK` is enabled; allow extra time for long tracks and first-run model downloads. |
 | `BATCH_ISOLATE_PER_TRACK` | `True` | Run each track in a fresh Python subprocess; recommended on macOS. |
 | `BATCH_SPLIT_IDENTITY_PROCESS` | `True` | Separate heavy analysis from identity/save work to reduce out-of-memory risk. |
 | `BATCH_LOG_RSS` | `True` | Log approximate process resident memory after cleanup. |
@@ -637,7 +639,7 @@ python musiclyse-0.6.1 .py
 | `LOAD_CHECKS_TO_CHAT` | `True` | Send load-time corrected analysis to the chat model. |
 | `STRUCTURE_SAVE_REPLAY` | `True` | Save inputs used to replay the structure map’s final stage. |
 
-## Additional vocal-presence and co-lead controls in 0.6.1
+## Additional vocal-presence and co-lead controls in 0.6.2
 
 | Variable | Default | Description |
 |---|---:|---|
@@ -651,13 +653,13 @@ python musiclyse-0.6.1 .py
 | `INSTRUMENTAL_PRESENCE_MAX_CLIPS` | `90` | Maximum listening-model requests for a full-mix presence-verification run, including retries and its positive-vote corroboration. If full coverage cannot be completed confidently, the check cannot declare the track instrumental. |
 | `PRESERVE_UNBROKEN_COLEAD_IDENTITY` | `True` | Preserve a supported unbroken male identity when resolving confirmed mixed leads, including a separately documented female co-lead. Female-sounding samples alone do not establish a female singer's identity. |
 
-## Additional structure-label control in 0.6.1
+## Additional structure-label control in 0.6.2
 
 | Variable | Default | Description |
 |---|---:|---|
 | `STRUCTURE_RETURNING_PRECHORUS_LABELS` | `True` | Allow a returning section to receive a pre-chorus label when it closely matches repeated earlier pre-choruses and passes the structural and lyric checks. This rule changes labels and numbering, not section boundaries. |
 
-## Behaviour notes for 0.6.1
+## Behaviour notes for 0.6.2
 
 - Failed vocal-presence corroboration can leave human vocal presence unresolved. In that case the pipeline skips Whisper transcription and singer-identity resolution, and the report/export withholds unsupported generated lyric and identity blocks. This is not automatically an instrumental verdict.
 - Missed co-lead recovery can use additional mix/stem checks and two disjoint longer-context clips. Confirming mixed leads still requires corroboration and direct different-person comparisons. If sampled male and female leads disagree without sufficient confirmation, the identity/count is qualified as uncertain rather than confidently reported as one singer.
@@ -693,20 +695,6 @@ These are actual environment variables, unlike the Python constants above. Set t
 | `MOSS_MUSIC_CODE_DIR` | Search beside the script, then `~/MOSS-Music` | Repository location when the Python constant of the same name is `None`. A configured Python path takes priority. |
 | `PYTORCH_MPS_HIGH_WATERMARK_RATIO` | `"0.0"` | PyTorch MPS allocator upper watermark; this fallback removes its upper allocation limit. An existing environment value wins. |
 | `PYTORCH_MPS_LOW_WATERMARK_RATIO` | `"0.6"` | MPS allocator cleanup watermark. An existing environment value wins. |
-
-## Changed since 0.5
-
-| Previous name | 0.6.1 name |
-|---|---|
-| `MF_MODEL_ID` | `MOSS_MODEL_ID` — now `OpenMOSS-Team/MOSS-Music-8B-Instruct` |
-| `MF_TORCH_DTYPE` | `MOSS_TORCH_DTYPE` |
-| `MF_EMPTY_RETRY_SYSTEM_PROMPT` | `MOSS_EMPTY_RETRY_SYSTEM_PROMPT` |
-| `MF_EMPTY_RETRY_ADD_DESCRIPTION` | `MOSS_EMPTY_RETRY_ADD_DESCRIPTION` |
-| `MF_LOOP_GUARD` | `MOSS_LOOP_GUARD` |
-| `MF_CONSISTENT_REPORT` | `MOSS_CONSISTENT_REPORT` |
-| `SKIP_MF_LYRICS_WHEN_TAGS_PRESENT` | `SKIP_LYRICS_TRANSCRIPTION_WHEN_TAGS_PRESENT` |
-
-The listening-model change also requires the MOSS-Music model code; changing the model ID alone is not sufficient. Earlier saved JSONs remain readable through the script’s compatibility handling.
 
 ---
 
