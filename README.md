@@ -13,26 +13,29 @@ A highly configurable piece of local AI chatbot software that can "listen" to mu
 
 # About:
 
-Musiclyse is a Python script designed for high-spec Macs (it is easily portable to good quality Linux PCs) that enables local conversations about music. It utilises a multi-step song processing pipeline linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of MOSS-Music, Essentia/PANNs, Discogs-400 genre detection, Demucs separation fed to Omnizart, Wikipedia database RAG retrieval for artist context, and metadata analysis (which will improve recognition for lyrics). You're welcome to help improve the project to make its song recognition better!
+Musiclyse is a Python script designed for high-spec Macs (it is easily portable to good quality Linux PCs) that enables local conversations about music. It utilises a multi-step song processing pipeline linked to an Ollama hosted local LLM of the user's choice. This consists of a pipeline process of Gemma 4 (in 0.7 and later), MOSS-Music, Essentia/PANNs, Discogs-400 genre detection to aid PANNs, Demucs separation fed to Omnizart, Wikipedia database RAG retrieval for artist context, metadata analysis (which will improve recognition for lyrics), several other smaller models, and a whole load of algorithmic code to glue these together so they work optimally. You're welcome to help improve the project to make its song recognition better!
 
 # Key features:
 
-The following features are all included in Musiclyse 0.6.2:
+The following features are all included in Musiclyse 0.7:
 
-* Beat, melody, genre, vocal, song key, song structure, scale and era analysis. Accuracy for many things has been significantly improved since 0.3.
+* Beat, melody, genre, vocal, song key, song structure, scale and era analysis. Accuracy for many things has been significantly improved in 0.7.
+* Talk about the music theory behind a song.
 * Can get accurate facts about music adjacent topics via an optional Wikipedia-based database add-on file.
 * Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat.
 * Supports image analysis (if used with an image-supporting model).
-* LLMs can be swapped out easily in the script. Currently it is optimised for use with Muse Glimmer 30B; for less powerful systems Gemma 4 26B is recommended.
+* LLMs can be swapped out easily in the script. Currently it is optimised for use with Gemma 4 31B; for less powerful systems Gemma 4 26B is recommended.
 * Save your analysed song data to JSON files, then load them quickly in a new session.
 * Run an overnight batch of songs to JSON files that can be fast loaded at a later time.
 * Create your own personas and hear their opinions about songs, as well as testing their knowledge.
 * Import two tracks together to compare them easily via both musical and sonic signature analysis.
 * Specify a range (x seconds to y seconds) in a track to analyse for faster processing and more precise analysis.
 * Export your .json files to specially formatted .txt files, allowing any general purpose LLM to "listen" to music and have highly contextual discussions about one or more songs. You can do this via musiclyse_export.py.
+* Seamlessly analyse music videos
 
 ## Version history:
 
+* 2026/11/09 - Musiclyse 0.7. Completely overhauled the built in chatbot functionality. It no longer accepts raw .JSON files and now instead relies on .txt export files, which contain the same data in LLM-prompted form, for much better efficiency and fluidity. It should feel a lot less stiff or "drunk" than it did before, and these files contain all of the same descriptive data about tracks. The new default chatbot is really fun and witty; you'll love it. You can now save and load conversations. Unsaved conversation text remains in RAM only, as was the case previously. Now uses Gemma 4 31B as the output LLM. Conversations should feel much more fluid than they did with Muse Glimmer, which sounded sort of drunk. You can now enter /load "" or '' and it will give you a dropdown of tracks you've analysed and exported to select from. Commands have been updated to reflect the overhauled chatbot. Further refined vocalist identity detection. Added a game mode - right now there are 4 games (they're custom LLM prompts that serve specific functions). 3 are different censo from historic contexts (the Brezhnev-era USSR, the US during McCarthyism and the explicit lyric panic of the 1980s) that you can test, while one is a tool designed to tell you if a song would likely be suitable for a pop hit today. Vastly strengthened the singer identity algorithm (it still relies heavily for ambiguous cases on metadata and the wiki database, though). Added MTG-Jamendo model for additional instrument detection details. MOSS-Music now gives additional passes to allow for additional instrument playing style or production details on some tracks. Fixed a number of small bugs. Personas now take a few seconds to be accepted (or declined). I introduced this safety check due to stumbling upon an unintended problem where /persona mode in the rewritten chat was bypassing Gemma's usual safety guardrails on who it would roleplay as. Typing /load ""/'' will now bring down a dropdown menu to make it easier for you to select your song(s). Fixed a problem where certain genres listings were defaulting to scripted examples; specific genre detection should now be better. Exporter scripts now contain more information about the production details of tracks via the listening_details section of .json analysis files. Audio from video files can now be analysed without the need to convert first. Musiclyse now supports video analysis alongside talking about the music of a video! "Thinking..." progress notices in the chat now disappear when the output begins generating. Unneccessary LLM-written changelogs have been removed from the public version, making the file sizes smaller. If you would like a copy with LLM notes for development purposes (under the terms of the MIT license), please contact me at rjdgourley@outlook.com and I'll send them over to you. Integrated the functionality of the export script inside the main script. Added SongFormer for improved section labelling. Timestamps and section labels should now be noticeably more accurate on many tracks. Made BPM fixes that were causing double speed detection on some tracks. Added a license disclaimer on the startup screen. Added a /help menu.
 * 2026/10/30 - Musiclyse 0.6.2. Brings major improvements to the export script, allowing for more in-depth and accurate conversations about tracks with general purpose LLMs. Fixes a number of minor bugs in the main script, but changes little in the song analysis pipeline.
 * 2026/10/28 - Musiclyse 0.6.1. A patch that makes improvements to vocal identity recognition. If you already have 0.6 installed, you can simply copy the 0.6.1 main script and export files to the same folder and run as before without any reinstall needed. Some tracks where there is conflicting evidence may take a bit longer to resolve the vocalist identity.
 * 2026/10/27 - Musiclyse 0.6. Now uses Python 3.11 (due to the end of Python 3.10 support). Replaced Music Flamingo with MOSS-Music as the listening model, which scores higher in benchmarks and is less prone to erratic hallucinations (being built on Qwen 3 8B instead of Qwen 2.5 7B). Mood and style detection should now be noticeably more detailed. This does require a different installation process to before. Noticeable improvements to timestamp and song section detection accuracy, as well as song key and BPM detection accuracy. Refined the .json-to-txt export script to take into account the updates and improvements made. Much improved genre classification. Fixed a number of memory caching and disk swap bugs that were causing high memory pressure on Macs with 64GB RAM. You should notice that songs process noticeably faster than in 0.5 (which brought down times noticeably from 0.4). Refinements to vocal identity detection. Implemented a system attempting to allow output LLMs to discuss music theory in a song based on the extracted MIDI and time signature information, notably things like chord progressions. Added a new install script that should make the software easier to setup.
@@ -43,117 +46,14 @@ The following features are all included in Musiclyse 0.6.2:
 * 2026/08/22 - Musiclyse 0.1. Beat, melody, genre, vocal, song key, scale and era analysis. There are currently some minor accuracy issues which I am hoping to improve. Will talk about the concept of the songs or compare and contrast two or more different songs. You can ask it anything you can ask a normal chatbot, and it will be able to bring songs into context with the chat. Supports image analysis (if used with an image-supporting model). LLMs can be swapped out easily in the script. Currently it is optimised for use with Muse Glimmer 30B; for less powerful systems Gemma 4 26B is recommended. Save your analysed song data to JSON files, then load them quickly in a new session. Run an overnight batch of songs to JSON files that can be fast loaded at a later time. Create your own personas and hear their opinions about songs.
 
 
-Below is an example of a chat in Musiclyse 0.2:
 
-```
-You: Yo Musiclyse! I got two tracks for you to ask questions about and compare. I'll send one to you first, then you'll wait for the second before answering my questions.
-  ⏳ Thinking...
-
-Musiclyse: Nice, I'm in. Send the first track over and I'll hold off until you've dropped the second before we compare.
-
-  (tokens: this turn ~2579 [prompt 2355 + reply 224] · session ~2579 · context window 131072)
-
-You: /load cutemloosebruce
-  (loaded saved song '06 Cut em Loose Bruce.m4a' into this session)
-
-You: /load marysgarden I wondered which of these two songs is more melodic?
-  (loaded saved song '09 - Marys Garden.m4a' into this session)
-
-  ⏳ Writing...
-
-Musiclyse: Mary’s Garden is the more openly melodic of the two, in my ears.
-
-Cut ’em Loose Bruce from Happy Mondays is a 1992 Yes, Please! groove — it’s a Shaun Ryder-ish story song with that late-70s/early-90s Madchester bounce, a post-puberty male lead that’s bright and slightly nasal up front, and a sunshine refrain that lands more like a spoken chant than a sung hook. The track is built around the rhythm section and that kind of half-talk, half-melody delivery, with the guitar sitting back in the mix and the whole thing feeling more narrative and dance-floor narrative than sing-along.
-
-Mary’s Garden from The Mock Turtles’ 1990 Turtle Soup sits a little higher in the pocket — around 129 bpm vs the Mondays’ ~99 bpm — and it’s much more chorus-forward. You get that clean, slightly bright male lead asking “Oh Mary, how does your garden grow?” over and over, and the guitars are really out front with a choppy, jangly hook that you can hum straight away. The verses paint the little pictures — ballet horses, crystal bells, pretty maids in china blue — and then the chorus snaps back in a very singable, almost music-hall pop way. The Mock Turtles were part of that early-90s Manchester indie wave that loved a big, memorable refrain, and this is a textbook example.
-
-So if you’re after the one you’ll find yourself humming on the way out the door, it’s the Mock Turtles track. The Mondays track is great for vibe and storytelling, but Mary’s Garden is the more melodic earworm of the pair.
-
-  (tokens: this turn ~15155 [prompt 13741 + reply 1414] · session ~17734 · context window 131072)
-You: How do the two compare in instrumentation and production?
-  ⏳ Thinking...
-
-Musiclyse: They’re built from very different palettes, even though both are that late-80s/early-90s Manchester-adjacent polish.
-
-Cut ’em Loose Bruce is a rhythm-and-brass number. The drums sit right up front — punchy kit, pretty laid-back at ~99 BPM, with a tight, rhythmic electric bass that’s driving almost everything you feel in the low end. The guitar is there but it’s more of a texture, clean with a little overdrive tucked behind the groove. What really makes it pop is the brass — trumpets, trombones, saxes with melodic lines and little stabs that answer the vocal. The mix is wide and well-separated, almost hi-fi for the time, with the lead vocal dry and front-and-center, just a touch of natural room reverb. It feels loose, dance-floor storytelling, with a lot of sub-bass and low-mid weight and a pretty open dynamic range.
-
-Mary’s Garden is much more guitar-first indie pop. It’s quicker, about 129 BPM, and the drums are busy in a different way — crisp hi-hat chatter with a tight kick/snare backbeat that gives it that bouncy, radio-ready pulse. The guitar is the star: jangly, layered, constantly moving, with a bright mid-range presence that the mix leans into. Bass is solid and supportive but stays in a more traditional pop pocket, and there’s no brass at all — just drums, bass, guitars and the lead vocal. Production-wise it’s clean and bright too, but more mid-forward and compressed in the feel, the kind of forward, radio-friendly sheen you get on early-90s indie singles. The vocal is clean and slightly bright, also front-and-center but with a more traditional pop delivery, and the whole thing is tighter and more compact than the Mondays track, which sprawls a bit more around the groove.
-
-So one is funk/dance with horns and a deep groove, the other is jangly guitar-pop with a busy, bouncy drum pulse.
-
-  (tokens: this turn ~16516 [prompt 14974 + reply 1542] · session ~34250 · context window 131072)
-You: What about in terms of mastering?
-  ⏳ Thinking...
-
-Musiclyse: Good question — both sit in that early-90s analog-to-digital transition window, so they’re both pretty open and dynamic, but they read differently on the meters.
-
-Cut ’em Loose Bruce from Happy Mondays’ 1992 Yes, Please! feels a touch more open. The file I’m hearing shows a higher crest factor, about 16.3 dB, which gives you that more dynamic, less squashed master — peaks breathe a bit, the drums and brass have room to hit and then fall back. The overall tonal balance is darker down low, with a big sub-bass and bass footprint and a lot of low-mid weight. The top end is polite, a little airy but not aggressive, which matches the wide stereo imaging and that classic late-80s/early-90s hi-fi feel.
-
-Mary’s Garden from The Mock Turtles’ 1990 Turtle Soup is a little more radio-forward. Crest factor sits around 14.1 dB, so it’s still dynamic for the era, but a touch more contained — you get that slightly tighter, more compressed-for-single feel. It’s brighter overall, with more midrange presence and a little less sub content; the mix leans into the guitars and vocal, and the drums sit a bit hotter in the mix. The stereo image is still wide, but the mastering is a bit more mid-forward and a bit more polished in the top, which helps it cut on radio and smaller speakers.
-
-So in practice: the Mondays track feels a little looser and more spacious, with more low-end weight and dynamic headroom; the Mock Turtles track feels a bit tighter, brighter, and more immediate for single play.
-
-  (tokens: this turn ~16630 [prompt 16277 + reply 353] · session ~50880 · context window 131072)
-You: I hear a somewhat Bowieish sound in Mary's Garden
-  ⏳ Thinking...
-
-Musiclyse: That’s a fun catch — I hear it too.
-
-Mary’s Garden has that early-90s Manchester indie-pop sheen that was chewing on a lot of late-70s pop glam influences. The Mock Turtles were coming out of that 1985 Middleton scene with Martin Coogan at the helm, and by the time Turtle Soup landed in 1990 they were leaning into big, singable choruses and jangly guitars with a slightly theatrical vocal delivery. The track is built around a bright, bouncy guitar hook, a clean slightly bright male lead asking “Oh Mary, how does your garden grow?” and those little music-hall images — crystal bells, pretty maids in china blue, walking under the gazing moon — that give it a storybook, almost Ziggy-era playfulness.
-
-It’s not a direct Bowie quote, but the combination of that chiming guitar, the bouncy 129 bpm pulse, the wry, slightly cheeky lyricism and the big, open chorus is exactly the kind of thing you’d get when a bunch of Manchester kids were digesting Bowie, Roxy Music, and the whole glam-pop lineage via the Madchester filter. The Mock Turtles were famously part of that early-90s indie pop wave that loved a memorable hook and a bit of drama, so the Bowieish sparkle you’re picking up is really that glam-pop sensibility filtered through a 1990 indie rock lens.
-
-Nice ear — it’s that little theatrical, slightly theatrical pop lift that makes the song stick.
-
-  (tokens: this turn ~18623 [prompt 18303 + reply 320] · session ~69503 · context window 131072)
-You: In the case of that Happy Mondays album, it was widely panned by critics
-  ⏳ Thinking...
-
-Musiclyse: Yeah, Yes Please! was a rough landing.
-
-Happy Mondays went out to Barbados in 1991 to record with Chris Frantz and Tina Weymouth at Eddy Grant’s studio. When Yes Please! came out in 1992 it was a commercial failure — it basically helped bankrupt Factory Records — and the critical reception was pretty savage. The press were tired of the excess and the whole “Madchester” hangover, and the album landed with a thud compared to the platinum peak of Pills ’n’ Thrills and Bellyaches.
-
-Cut ’em Loose Bruce is actually one of the brighter moments on that record; the album’s press was mainly negative overall, with reviewers calling the whole thing unfocused and overblown. So you’re right — the album was widely panned, even if that one track still has its fans.
-
-  (tokens: this turn ~20612 [prompt 20435 + reply 177] · session ~90115 · context window 131072)
-You: Even Cut Em Loose Bruce isn't great in my view, and it was probably one of the better songs on the album, which speaks for just how awful Yes Please was
-  ⏳ Thinking...
-
-Musiclyse: Yeah, I hear you. Yes Please! is the Happy Mondays record most fans try to make peace with and then quietly shelve.
-
-By ’92 the whole Madchester moment was already fizzling out — Nevermind had landed, the scene was tired, and the band was in a bad way on and off the road. They went down to Barbados to record with Chris Frantz and Tina Weymouth at Eddy Grant’s studio, and what came back felt loose in all the wrong places. It flopped commercially, it was a big part of what finally bankrupted Factory Records, and the press at the time were pretty brutal about it.
-
-Cut ’em Loose Bruce is the kind of track that ends up being “one of the better ones” by default — it’s got a hook and a bit of that old Mondays swagger, but even that feels a little thin and distracted compared to Pills ’n’ Thrills. When the best song on an album is a shrug, that says it all about where the record is.
-
-It’s wild how much the Mock Turtles’ Turtle Soup from the same era feels more alive in the moment — same Manchester scene, same year-ish window, but Mary’s Garden still wants to be sung along to.
-
-  (tokens: this turn ~23070 [prompt 22177 + reply 893] · session ~113185 · context window 131072)
-You: Anyway, before we go, which Madchester bands sounded closer to the Mock Turtles and which sounded closer to Happy Mondays?
-  ⏳ Thinking...
-
-Musiclyse: That’s a nice way to split the scene up.
-
-The Mock Turtles were really the pop-jangle side of the Manchester bubble. Turtle Soup in 1990 is all clean guitars, big choruses and a music-hall wink — that’s the indie-pop lineage that sits much closer to the more song-focused end of Madchester. Think The Stone Roses when they’re at their melodic, The Charlatans UK with their organ-driven pop, The La’s, The Chameleons in their more romantic moments, and bands on the Imaginary/Rough Trade orbit that wanted a hook first and a groove second. It’s the “sing-along on a sunlit afternoon” end of the scene.
-
-Happy Mondays are the other pole — the baggy/dance-funk side. Shaun Ryder and the crew fused indie guitars with house, funk and northern soul, and their records were constantly being remixed by DJs. That puts them closer to the rave-leaning Manchester acts: 808 State, A Guy Called Gerald, The Shamen, Inspiral Carpets, and that whole Haçienda-driven set where the rhythm section and the dancefloor were the point. Even The Stone Roses sit a bit closer to the Mondays in vibe and attitude than the Mock Turtles do, with their psychedelic, groove-heavy sprawl.
-
-So basically: jangly pop and big choruses — Mock Turtles territory. Loose funk, house-tinged baggy and dance-floor storytelling — Happy Mondays territory.
-
-  (tokens: this turn ~25026 [prompt 24049 + reply 977] · session ~138211 · context window 131072)
-You: Nice talking to you - you got all of that brilliant! It's proof you're working as I intended.
-  ⏳ Thinking...
-
-Musiclyse: That made my day — glad it landed how you wanted. Always happy to nerd out about Madchester with you.
-
-  (tokens: this turn ~25353 [prompt 25254 + reply 99] · session ~163564 · context window 131072)
-```
 
 
 ## System requirements
 
-Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Muse Glimmer for Google's Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
+Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Gemma 4 31B for Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
 
-# Manual Installation for 0.6.2 (for MacOS):
+# Manual Installation for 0.7 (for MacOS):
 
 1: Ensure Python 3.11 is installed on your system
 
@@ -167,11 +67,11 @@ Due to the nature of what it's doing, it's intended to be run on powerful machin
 brew install ollama ffmpeg portaudio
 ```
 
-4: In a new terminal window, start Ollama and install Muse Glimmer (if you want a different model for output, change the specification in musiclyse-0.6.2.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use the MLX version of Muse Glimmer, though this will only work on a Mac.
+4: In a new terminal window, start Ollama and install Gemma 4 31B (if you want a different model for output, change the specification in musiclyse-0.7.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use Ollama's default version of Gemma 4 31B.
 
 ```
 ollama serve
-ollama pull muse-glimmer:30b-mlx
+ollama pull gemma4:31b
 ```
 
 5: Return to your PREVIOUS prompt, leaving the Ollama one open (once the model has installed and the server is running) since the script will not run without an Ollama server running, and create a virtual Python 3.11 environment in the folder with the git clone you made:
@@ -195,42 +95,95 @@ omnizart download-checkpoints
 9: Run the software:
 
 ```
-python musiclyse-0.6.2 .py
+python musiclyse-0.7 .py
 ```
 
-# Configurable Variables & Flags in Musiclyse 0.6.2
+# Configurable Variables & Flags in Musiclyse 0.7
 
 ## Command-line
 
 | Usage | Description |
 |---|---|
-| `python musiclyse.py` | Start without a track; choose one with `/listen`. |
-| `python musiclyse.py /path/to/song.m4a` | Start with a local audio file. A URL can also be supplied where supported. Use the actual script filename if it has not been renamed to `musiclyse.py`. |
-| `python musiclyse.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker used by `/batch`. |
-| `python musiclyse.py --batch-one-analyze /path/to/song.mp3 /tmp/staging.json` | Internal: heavy-analysis stage for split-process batch mode. |
-| `python musiclyse.py --batch-one-finish /tmp/staging.json` | Internal: identity/save stage for split-process batch mode. |
-| `python musiclyse.py --omnizart-prefetch /tmp/input.json /tmp/output.json` | Internal: separate-process Omnizart transcription worker; not a normal startup option. |
+| `python musiclyse-0.7.py` | Start the chat. Analyse tracks with `/analyse` or `/batch`, export them with `/export` and load the exports with `/load`. |
+| `python musiclyse-0.7.py "saved-songs/llm-ready/plus-wiki/Artist - Title.txt"` | Start with an export already loaded. An audio file given here is not analysed: a note says to use `/analyse`. |
+| `python musiclyse-0.7.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker used by `/batch`. |
+| `python musiclyse-0.7.py --batch-one-analyze /path/to/song.mp3 /tmp/staging.json` | Internal: heavy-analysis stage for split-process batch mode. |
+| `python musiclyse-0.7.py --batch-one-finish /tmp/staging.json` | Internal: identity/save stage for split-process batch mode. |
+| `python musiclyse-0.7.py --omnizart-prefetch /tmp/input.json /tmp/output.json` | Internal: separate-process Omnizart transcription worker; not a normal startup option. |
+| `python musiclyse-0.7-export.py [files or folder] [options]` | The exporter: turns saved `.json` analyses into `.txt` exports for chatting. With no files or folder it exports every save in `saved-songs/`. `/export` runs it from inside the chat with the same options (see **Export options**). |
 
 ## In-chat slash commands
 
 | Command | Description |
 |---|---|
-| `/listen <question>` | Analyse the current track; the first full analysis is cached for follow-up questions. |
-| `/listen <path or URL> <question>` | Switch to another track and analyse it. |
-| `/listen <path> [start-end] <question>` | Analyse an audio excerpt, with the window in seconds or minutes:seconds; e.g. `/listen song.mp3 [30-60] analyse the solo` or `/listen song.mp3 [1:30-2:00] analyse the solo`. Use a dash between minutes:seconds times; `[1:30]` still means 1–30 seconds. An excerpt cannot be saved as a full-track scan. |
-| `/relisten [<path or URL>] <question>` | Force a fresh full analysis instead of reusing the cache; a path/URL can be supplied to switch tracks. |
-| `/correct field=value[, field=value…]` | Record a user-confirmed fact that overrides the analysis for the current track (e.g. `/correct year=1966`). |
-| `/save=filename.json` | Save technical details for the most recently scanned full track in `saved-songs/` (or the configured `SAVE_DIR`). |
-| `/load filename.json [question]` | Load a saved track; the question is optional. Names with spaces and punctuation are supported. |
-| `/loadcompare "track1.json" "track2.json" question` | Load two or more saved tracks together and ask a comparison question. Saved CLAP embeddings can add sonic-similarity evidence when available. |
-| `/batch /path/to/folder` | Scan audio files in a folder to JSON files in `saved-songs/`; does not import them into chat and skips files already saved. |
-| `/clear` | Wipe chat context and reset session token counters; keep in-memory track analyses. |
-| `/clearall` | Wipe chat context and in-memory track analyses. JSON files on disk are kept and can still be loaded. |
-| `/persona <description>` | Set the writer's chat voice/taste; music-evidence rules stay in force. |
-| `/persona` | Show the current persona. |
-| `/persona reset` | Restore the default music-obsessed-friend persona (`default` also works). |
-| `/debug` | Show debug information, including the most recent writer message. |
-| `quit` | Exit the application. |
+| `/analyse <audio file>` | Analyse one track (audio or video file) and save it to `saved-songs/`; skipped if it is already saved. |
+| `/reanalyse <audio file>` | Analyse a track again, replacing its save. |
+| `/batch <folder>` | Analyse every audio file in a folder into `saved-songs/`; skips files already saved. |
+| `/export [files or folder] [options]` | Export saves for chatting, exactly as the exporter script does. No path exports every save in `saved-songs/`; empty quotes (`/export ""`) choose songs from a menu; `/export --help` lists the options. |
+| `/load "Artist - Title" [question]` | Load an export (or a combined export) to chat about; the question is optional. `/load ""` opens a menu of your exports. Exports are found under `saved-songs/llm-ready/` (any folder inside it) or by path. |
+| `/load "Artist 1 - Title 1" "Artist 2 - Title 2" … [question]` | Load several exports at once, e.g. to compare them. |
+| `/quiet` | Add to a `/load` to load without a reply. |
+| `/lookup` | Add to any prompt (also with `/load`) to look up background in the local Wikipedia database. |
+| `/lookup-search "Title" ["Title 2" …] [question]` | Add Wikipedia articles by title. When a phrase is in several titles, a menu opens on the input line and the chosen title goes back on the line. Also works with `/load`, `/videoload` and `/musicvideoload`. |
+| `/chatsave [name]` | Save the conversation to `chats/`. Without a name it updates the conversation's current save (or makes a timestamped one); a name makes a separate copy. Saves include songs, images and the full transcript. |
+| `/chatload [name]` | Resume a saved conversation. Alone (or with empty quotes) it opens a menu; a name finds the save made with that name (a menu when several match); `.json` is optional. |
+| `/videoanalyse "<video>" [options]` | Visual analysis of a video's pictures; asks for an optional name and saves resumable reports in `video-analysis/`. `/videoanalyse --help` lists the options. |
+| `/videoload <name or path> [question]` | Load a video report to chat about; empty quotes open a menu. Can be combined with `/load` and a question. |
+| `/frame <loaded video name> <index>` | Attach a saved frame (indices start at 0) to a follow-up question. |
+| `/videoframe <report.json> <time> [question]` | Show the retained frame nearest a video time. |
+| `/videoembed <report.json>` | Embed an older report's saved JPEGs without rescanning. |
+| `/videostrip <report>` | Write a text-only copy of a report (no frame images) for sharing. |
+| `/musicvideoanalyse "<video>" [options]` | Analyse a music video's song (audio), then its pictures; asks for an optional name. |
+| `/musicvideoload <name> [question]` | Load a music video's song export and its video report together; empty quotes open a menu. |
+| `/persona <description>` | Chat as a custom character. The description is checked by the default assistant first (it takes a few seconds), and a description that points to a picture waits for a reference image. |
+| `/persona reset` | Return to the default assistant. |
+| `/think` | Add to any prompt to let the chat model think before answering (slower). |
+| `/game` | Play a game: chat with a built-in character chosen from a menu. |
+| `/game-exit` | Leave the game and return to the default chat. |
+| `/clear` | Clear the conversation and reset token counters; loaded exports and looked-up background are kept and sent again. |
+| `/clearall` | Clear everything, including loaded exports and looked-up background. Files on disk are untouched. |
+| `/debug` | Show the last message sent to the chat model. |
+| `/help` | On its own: show the list of commands again. |
+| Images | Drag an image file into the window (or type its path or web address) in any prompt to show it to the chat. |
+| `quit` | Exit the application (`exit` also works). |
+
+Video commands are unavailable in games. Names with spaces can be quoted.
+
+## Export options (exporter script and `/export`)
+
+| Option | Description |
+|---|---|
+| `[files, folders or patterns]` | `.json` saves, folders or glob patterns; default: every save in the `saved-songs` folder beside the script. |
+| `--level {brief,standard,plus,high,full}` | Detail depth: brief < standard < plus (standard + the tune phrase by phrase) < high (adds every note, written compactly) < full (the same notes as full timed event lists). Default `standard`. |
+| `-o DIR`, `--out-dir DIR` | Output folder (default: `llm-ready` next to each input). Exports go in a `{level}-wiki` or `{level}-no-wiki` subfolder inside it. |
+| `--max-tokens N` | Trim the lowest-priority sections until the file fits (approximate). |
+| `--ext {txt,md}` | Output extension; the content is markdown either way. |
+| `--combine FILE` | Write all inputs into one file with a side-by-side comparison. |
+| `--no-lyrics` | Leave lyrics out. |
+| `--max-lyrics-chars N` | Limit the length of the lyrics included. |
+| `--raw-notes` | Also list every transcribed note and drum hit (large; for exact-timing questions). |
+| `--cover` | Include the cover-art description section (omitted by default). |
+| `--copy-cover` | Copy the saved cover image next to each output (for vision models). |
+| `--stdout` | Print instead of writing files. |
+| `--wiki` / `--no-wiki` | Add Wikipedia background articles, or don't (the default is `--no-wiki`). |
+| `--wiki-db PATH` | The Wikipedia database (default: `music_wiki_heavy.db` next to the script). |
+| `--wiki-scope {full,core}` | `full`: artist, discography, every album and single found, members (default); `core`: artist, this track's album and song, members. |
+| `--wiki-debug` | Also print every member name found and why each was or wasn't added. |
+| `--wiki-artist NAME` | Artist to look up when a file has no artist tag (applies to every input). |
+| `--persona-mode {auto,default}` | `auto` adds a conditional custom-persona knowledge rule (default); `default` uses the original guide and footer without that rule. |
+| `--version` | Show the exporter's version. |
+
+## Video options (`/videoanalyse` and `/musicvideoanalyse`)
+
+| Option | Description |
+|---|---|
+| `--name NAME` | Display and analysis folder name (otherwise asked for). |
+| `--song "Artist - Title"` | The song save to pair the video with. |
+| `--offset SECONDS` | Video time minus song time, to align the two. |
+| `--fps N` | Frames sampled per second (e.g. `--fps 1`). |
+| `--frames-per-request N` | Frames sent to the model per request (e.g. 8). |
+
+Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--max-frames`, `--num-ctx`, `--reply-tokens`, `--keep-alive`, `--output-root`) are listed by `/videoanalyse --help`. Similar song and video names are associated automatically; timing alignment still needs an explicit offset.
 
 ## Console / display
 
@@ -238,7 +191,6 @@ python musiclyse-0.6.2 .py
 |---|---:|---|
 | `FRIENDLY_PROCESSING_DISPLAY` | `True` | Use a compact, progress-bar-style display instead of a scrolling log. |
 | `USE_COLOR` | Automatic | Enables terminal colour when `sys.stdout.isatty()` is true. This is detected by the script, not a normal user-config constant. |
-| `SHOW_RAW_ANALYSIS` | `False` | Print MOSS-Music's full raw analysis for debugging. |
 | `DEBUG_MODEL_LOADING` | `False` | Show raw model-loading logs instead of a status line. |
 | `SHOW_OMNIZART_LOGS` | `False` | Allow Omnizart stdout/stderr through instead of suppressing it. |
 | `DEBUG_STEM_MIDI` | `False` | Print verbose per-stem note-count debugging. |
@@ -248,7 +200,7 @@ python musiclyse-0.6.2 .py
 | Variable | Default | Description |
 |---|---|---|
 | `OLLAMA_URL` | `"http://localhost:11434/api/chat"` | Ollama chat endpoint. |
-| `OLLAMA_MODEL` | `"muse-glimmer:30b-mlx"` | Writer model used for the final response and general chat. Pull this model in Ollama, or change the name to another installed model. |
+| `OLLAMA_MODEL` | `"gemma4:31b"` | Chat model (Ollama). Pull this model in Ollama, or change the name to another installed model (for example `"gemma4:26b"`). |
 | `OLLAMA_NUM_CTX` | `131072` | Context-window size requested from Ollama. |
 | `OLLAMA_SUPPORTS_IMAGES` | `True` | Whether the selected writer model is treated as accepting image input. |
 | `OLLAMA_INTERACTIVE_KEEP_ALIVE` | `"30m"` | How long Ollama keeps the interactive writer model loaded after a request. |
@@ -271,7 +223,7 @@ python musiclyse-0.6.2 .py
 |---|---:|---|
 | `FAST_MODE` | `False` | Skip the MOSS-Music self-check pass to save time and one generation. |
 | `DEEP_MODE` | `False` | Use larger token budgets and two extra analysis categories; more thorough but slower. |
-| `PARALLEL_ANALYSIS` | `True` | Run independent analysis tasks concurrently where supported. Background failures are retried in order. URL and excerpt analyses run sequentially. |
+| `PARALLEL_ANALYSIS` | `True` | Run independent analysis tasks concurrently where supported. Background failures are retried in order. |
 | `ENABLE_OBJECTIVE_AUDIO_REPORT` | `True` | Include signal-processing-based objective audio measurements. |
 | `COMPACT_OBJECTIVE_REPORT` | `True` | Use a compact objective-report format. |
 | `SKIP_LYRICS_TRANSCRIPTION_WHEN_TAGS_PRESENT` | `True` | Skip lyric transcription when usable embedded lyrics are available; lyric timing can still require Whisper. |
@@ -288,7 +240,6 @@ python musiclyse-0.6.2 .py
 | `STEM_MIDI_INCLUDE_EVENT_LOGS` | `False` | Include detailed stem/MIDI event logs. |
 | `STEM_MIDI_COMPACT_EVENT_FORMAT` | `True` | Use a compact format for stem/MIDI event output. |
 | `STRUCTURE_V2_ENABLED` | `True` | Use the newer bar-level, multi-cue song-structure segmentation. Set `False` to fall back to the previous structure pipeline. |
-| `CHAT_HIDE_SECTION_NAMES` | `True` | In chat evidence, refer to measured song sections by part number and time rather than names such as verse/chorus. |
 | `STRUCTURE_ANSWERS_WITH_TIMES` | `True` | Include measured times in structure answers. |
 | `WHISPER_WORD_TIMING` | `True` | Use Whisper word timing to help align lyrics with the section map. |
 | `WHISPER_EXPLICIT_TEMPERATURE` | `False` | Explicitly set Whisper's anti-hallucination temperature settings. Enabling it can change lyric text and timing; the default leaves it off for compatibility. |
@@ -302,14 +253,12 @@ python musiclyse-0.6.2 .py
 | `VOCAL_PITCH_OCTAVE_CHECK` | `True` | Check for a pitch tracker reading that is an octave above the note-by-note reading. |
 | `VOCAL_UNBROKEN_SIGNATURE` | `True` | Preserve evidence that an adolescent male voice may be unbroken when supported by the vocal analysis. |
 | `VOCAL_DEEPENED_SIGNATURE` | `True` | Distinguish a young male artist whose voice has already deepened. |
-| `COMPARE_VOICE_PITCH` | `True` | Include measured lead-voice pitch comparisons in `/loadcompare` where available. |
 | `INSTRUMENT_REED_TAG_CHECK` | `True` | Flag unsupported reed-instrument tags when other evidence suggests a synth or sax-like sound. |
-| `ENABLE_CLAP_EMBEDDING` | `True` | Compute and save CLAP audio embeddings for sonic-similarity evidence in multi-track comparisons. Requires compatible Transformers CLAP classes. |
+| `ENABLE_CLAP_EMBEDDING` | `True` | Compute and save CLAP audio embeddings (sonic-similarity data) with each analysis. Requires compatible Transformers CLAP classes. |
 | `PRODUCTION_ANALYSIS_ENABLED` | `True` | Run the dedicated production-era analysis. |
 | `ENABLE_COVER_ART_DESCRIPTION` | `True` | Describe embedded cover art when available. |
 | `ENABLE_SINGER_IDENTITY_RESOLUTION` | `True` | Resolve the singer's likely identity from audio and available context. |
-| `ENABLE_IMAGE_OBSERVATIONS_FOR_GENERAL` | `False` | Allow image observations in ordinary general-chat turns. This is off by default; track cover-art description is controlled separately. |
-| `ENABLE_WIKI_CONTEXT` | `True` | Add locally indexed Wikipedia background to relevant questions when the database is available. |
+| `ENABLE_WIKI_CONTEXT` | `True` | Allow `/lookup` and `/lookup-search` to add background from the local Wikipedia database when it is available. |
 
 ## CLAP sonic-similarity embeddings
 
@@ -404,17 +353,13 @@ python musiclyse-0.6.2 .py
 | Variable | Default | Description |
 |---|---:|---|
 | `ENABLE_FILE_METADATA` | `True` | Read supported file metadata/tags. |
-| `SEND_COVER_ART_TO_OLLAMA` | `True` | Send prepared embedded cover art to the writer model when image input is supported. |
 | `METADATA_MAX_LYRICS_CHARS` | `10000` | Maximum lyric characters accepted from file metadata. |
 | `LYRICS_MAX_CHARS` | `12000` | General maximum lyric text length. |
 | `COVER_IMAGE_MAX_DIMENSION` | `512` | Maximum cover-art dimension in the prepared image. |
 | `COVER_IMAGE_QUALITY` | `"2"` | MJPEG qscale for cover-image conversion; lower values mean better quality. |
-| `MAX_COVER_IMAGES_PER_REQUEST` | `1` | Maximum cover images sent per request. |
 | `MAX_COVER_BYTES_TO_SEND_RAW` | `1_000_000` | Maximum cover-image byte size sent without further conversion. |
 | `MAX_EXPLICIT_IMAGE_BYTES` | `2_000_000` | Byte limit used when preparing explicit images supplied in chat. |
 | `EXPLICIT_IMAGE_MAX_DIMENSION` | `1568` | Maximum dimension for explicit images; larger/unsupported images are converted rather than rejected. |
-| `MAX_IMAGES_PER_REQUEST` | `8` | Maximum images considered for a request. |
-| `MAX_IMAGES_TO_DESCRIBE` | `2` | Maximum images to describe in a turn. |
 | `COVER_ART_DESCRIPTION_NUM_CTX` | `8192` | Context size for cover-art description requests. |
 | `SINGER_IDENTITY_NUM_CTX` | `8192` | Context size for singer-identity requests. |
 
@@ -441,9 +386,6 @@ python musiclyse-0.6.2 .py
 | `WIKI_EXACT_TITLE_LOOKUP` | `True` | Try exact-title lookup in addition to body search. |
 | `WIKI_EXACT_TITLE_MAX_PER_REQUEST` | `8` | Maximum exact-title lookups per request. |
 | `WIKI_EXACT_TITLE_MAX_HITS` | `2` | Maximum hits retained per exact-title query. |
-| `WIKI_CONTEXT_REFRESH_EVERY_QUESTION` | `False` | Refresh cached Wikipedia context for every question. |
-| `WIKI_SEARCH_EVERY_MESSAGE` | `True` | Search for relevant context on every message. |
-| `WIKI_DEBUG_LOG` | `True` | Print a one-line status after general-chat questions showing whether the database returned a match. |
 
 ## Production-era analysis
 
@@ -476,11 +418,10 @@ python musiclyse-0.6.2 .py
 | `BATCH_PRE_IDENTITY_SETTLE_S` | `5.0` | Wait before the identity/save stage to let memory settle. |
 | `SINGER_IDENTITY_REUSE_BATCH_MODEL` | `False` | Experimental batch option to retain the writer model briefly between singer-identity requests instead of unloading after each request. Disabled by default; the default retains the established request-by-request unloading behaviour. |
 
-## Persona / prompts / saved files
+## Saved files
 
 | Variable | Default | Description |
 |---|---|---|
-| `DEFAULT_PERSONA_PROMPT` | *(see script)* | Default writer persona; custom personas can be set at runtime with `/persona`. |
 | `SAVE_DIR` | `./saved-songs` | Directory for saved track JSON files and associated assets. |
 
 
@@ -503,7 +444,6 @@ python musiclyse-0.6.2 .py
 | `MOSS_FIELD_MAX_TOKENS` | `300` | Maximum generated tokens per field, also bounded by the remaining reply budget. |
 | `MOSS_SHORT_PROMPTS` | `True` | Use shorter prompts for era, vocal and vocal-confirmation passes. |
 | `MOSS_RETRY_ON_NON_ANSWER` | `True` | Retry a listening-model response that does not answer the requested analysis. |
-| `MOSS_LOW_TRUST_FIELDS` | `True` | Treat prompt echoes and stock example answers as unreliable evidence in the chat view. |
 
 
 ## Whisper timing and lyric handling
@@ -532,7 +472,6 @@ python musiclyse-0.6.2 .py
 | `RELEASE_MOSS_LOCALS_BEFORE_UNLOAD` | `True` | Drop local references to the listening model before its unload cleanup. |
 | `MOSS_RELEASE_REFRESH_LOCALS` | `True` | Refresh the analysis function’s local-variable snapshot so it does not retain the unloaded model on affected Python versions. |
 | `GPU_CLEANUP_MAIN_THREAD_ONLY` | `True` | Restrict MPS cleanup to the main thread to avoid concurrent GPU cleanup races. |
-| `FRESH_STEM_STATE_PER_TRACK` | `True` | Reset per-track stem state before `/listen` analysis to prevent reuse of another track’s evidence. |
 | `OMNIZART_PREFETCH_PROCESS` | `True` | Run background Omnizart transcription in a separate process. |
 | `OMNIZART_PREFETCH_TIMEOUT_S` | `1800` | Timeout in seconds for the Omnizart helper process. |
 | `PANNS_BATCH_WINDOWS` | `8` | Maximum instrument-tagging windows processed together in one inference batch. |
@@ -552,16 +491,6 @@ python musiclyse-0.6.2 .py
 | `DISCOGS_STYLE_TOP_K` | `5` | Maximum styles displayed in the style block. |
 | `DISCOGS_STYLE_MIN_PROB` | `0.10` | Minimum probability for displayed styles. |
 | `DISCOGS_STYLE_SAVE_TOP` | `40` | Number of strongest style scores retained in saved JSON. |
-| `GENRE_STYLE_NOTE` | `True` | Allow supported style labels to refine genre answers. |
-| `GENRE_STYLE_LED` | `True` | Refine or replace the chat-view recommended genre with sufficiently supported style evidence. |
-| `GENRE_STYLE_REFINE_MIN` | `0.35` | Minimum style confidence for refining a broad genre within its family. |
-| `GENRE_STYLE_REPLACE_MIN` | `0.30` | Minimum style confidence for replacing a genre family, with additional corroboration checks. |
-| `ERA_STYLE_CHECK` | `True` | Use a sufficiently confident period-specific style to check overly recent era estimates in the chat view. |
-| `ERA_STYLE_MIN` | `0.25` | Minimum style confidence for the era check. |
-| `ERA_STYLE_MAX_SPAN` | `25` | Maximum style heyday span in years for era checking. |
-| `REGIONAL_GENRE_GATE` | `True` | Require language or artist-background support for regional genre labels; suppress generic world/international labels. |
-| `GENRE_ERA_CHECK` | `True` | Check genre labels against the file’s year tag to avoid anachronistic labels. |
-| `GENRE_SYNTH_ROCK` | `True` | Combine supported rock-band and prominent synth evidence into a synth-rock reading. |
 | `GENRE_CHECK_IN_SAVED_ANALYSIS` | `True` | Include the genre-check warning at the top of saved analysis text. |
 
 
@@ -571,7 +500,6 @@ python musiclyse-0.6.2 .py
 |---|---|---|
 | `ENABLE_CHORD_PROGRESSION` | `True` | Run optional `lv-chordia` full-mix chord recognition and build per-section progressions; skipped if unavailable. |
 | `CHORD_PROGRESSION_DICTIONARY` | `"submission"` | Chord vocabulary: `"submission"`, `"ismir2017"` or `"full"`. |
-| `CHORD_PROGRESSION_IN_SAVED` | `True` | Rebuild a missing chord-progression block on load from saved chord segments. |
 | `CHORDS_MEASURED_LINE` | `True` | Combine measured stem chord lists with the listening model’s chords in a consistent report line. |
 | `HARMONY_MELODY_BY_SECTION` | `True` | Describe measured chords, lead melody and their relationship for each section. |
 | `MELODY_IN_KEY_BY_SECTION` | `True` | Describe each section’s lead line using scale degrees, phrase endings and recurring figures. |
@@ -631,15 +559,9 @@ python musiclyse-0.6.2 .py
 | Variable | Default | Description |
 |---|---|---|
 | `WRITER_CASUAL_VOICE` | `True` | Encourage plain conversational wording and remove unnecessary source-citing sentence openers. |
-| `WRITER_RULES_DEV45` | `True` | Enable writer rules for style, regional genre, era, chord-progression and melody evidence blocks. |
-| `FOLLOWUP_QUESTION_NOTES` | `True` | Apply relevant question-specific evidence notes to single-track follow-up questions. |
-| `SOUND_SOURCE_NOTE` | `True` | Require sound descriptions to follow measured track evidence while allowing artist and release background. |
-| `BEAT_DRAWING_NOTE` | `True` | For an unspecified drum-drawing request, show grids for parts with different grooves. |
-| `BEAT_DRAWING_MAX` | `4` | Maximum differing part grids requested by the beat-drawing note. |
-| `LOAD_CHECKS_TO_CHAT` | `True` | Send load-time corrected analysis to the chat model. |
 | `STRUCTURE_SAVE_REPLAY` | `True` | Save inputs used to replay the structure map’s final stage. |
 
-## Additional vocal-presence and co-lead controls in 0.6.2
+## Additional vocal-presence and co-lead controls
 
 | Variable | Default | Description |
 |---|---:|---|
@@ -653,13 +575,13 @@ python musiclyse-0.6.2 .py
 | `INSTRUMENTAL_PRESENCE_MAX_CLIPS` | `90` | Maximum listening-model requests for a full-mix presence-verification run, including retries and its positive-vote corroboration. If full coverage cannot be completed confidently, the check cannot declare the track instrumental. |
 | `PRESERVE_UNBROKEN_COLEAD_IDENTITY` | `True` | Preserve a supported unbroken male identity when resolving confirmed mixed leads, including a separately documented female co-lead. Female-sounding samples alone do not establish a female singer's identity. |
 
-## Additional structure-label control in 0.6.2
+## Additional structure-label control
 
 | Variable | Default | Description |
 |---|---:|---|
 | `STRUCTURE_RETURNING_PRECHORUS_LABELS` | `True` | Allow a returning section to receive a pre-chorus label when it closely matches repeated earlier pre-choruses and passes the structural and lyric checks. This rule changes labels and numbering, not section boundaries. |
 
-## Behaviour notes for 0.6.2
+## Vocal-presence behaviour notes
 
 - Failed vocal-presence corroboration can leave human vocal presence unresolved. In that case the pipeline skips Whisper transcription and singer-identity resolution, and the report/export withholds unsupported generated lyric and identity blocks. This is not automatically an instrumental verdict.
 - Missed co-lead recovery can use additional mix/stem checks and two disjoint longer-context clips. Confirming mixed leads still requires corroboration and direct different-person comparisons. If sampled male and female leads disagree without sufficient confirmation, the identity/count is qualified as uncertain rather than confidently reported as one singer.
@@ -668,22 +590,136 @@ python musiclyse-0.6.2 .py
 - Skipping transcription removes lyric timing from the structure detector's inputs. This can change section counts and boundary times even though the vocal-presence changes do not edit the section algorithm itself.
 - These behaviours do not introduce additional command-line options. The variables in this reference are Python configuration constants unless explicitly listed under **Environment overrides**.
 
+## Ollama startup and chat
+
+| Variable | Default | Description |
+|---|---|---|
+| `OLLAMA_LAUNCH_MODE` | `"window"` | How Musiclyse starts Ollama when none is running: `"off"` (start it yourself), `"background"` (hidden; stopped on exit), `"background_log"` (hidden, with its output in `OLLAMA_LAUNCH_LOG`; stopped on exit), `"log_window"` (hidden, with the log shown live in its own Terminal window) or `"window"` (its own Terminal window, left running after Musiclyse ends). An Ollama that is already running is used as it is. The window modes are for macOS; elsewhere they act as `"background_log"`. |
+| `OLLAMA_LAUNCH_LOG` | `"logs/ollama.log"` | The log file for `"background_log"` and `"log_window"`; a relative path is inside the script's folder. |
+| `OLLAMA_LOG_WINDOW` | `"behind"` | Where the `"log_window"` window opens: `"behind"` Musiclyse's window, or `"minimized"` into the Dock. |
+| `UNLOAD_CHAT_MODEL_ON_EXIT` | `True` | Free the chat model's memory in Ollama when Musiclyse closes. |
+| `CHAT_NUM_CTX_BY_MODEL` | *(see script)* | Context window per chat model name; only the chat uses it, scans keep their own windows. |
+| `CHAT_THINKING` | `False` | Whether the chat model thinks before replying: `False` never (`/think` asks for one reply), `True` always, `None` leaves it to the model or Ollama. |
+| `CHAT_KEEP_IMAGES` | `"auto"` | Keep earlier images in the conversation: `"auto"` keeps them on GGUF models and drops them on others; `True` always keeps; `False` always drops. |
+| `CHAT_TRIM_HISTORY` | `True` | When the conversation fills its share of the context window, drop its oldest quarter. Loaded exports and looked-up background are never removed. |
+| `CHAT_TRIM_TARGET` | `0.75` | Share of the conversation's room kept after a trim. |
+| `CHAT_RESUME_MAX_TOKENS` | `None` | Cap on the window used when resuming a saved chat (`None` uses the model's window). Saved chats keep the full archive. |
+| `CHAT_IMAGE_TOKENS` | `1500` | Token estimate per image used while the chat sends images. |
+| `CHAT_SOFT_REFUSALS` | `True` | The default chat and the games decline anything they won't do briefly, in their own voice, offering something close instead. Only changes how they say no, not what they'll discuss. |
+| `PERSONA_CONFIRM_FULL` | `True` | The "Persona set to:" confirmation shows the whole description (`False`: only its first 160 characters / first line). |
+| `PERSONA_IMAGE_REFERENCE_ONLY` | `True` | `/persona` waits for a reference image only when the description points to a picture ("the person in this photo"), not for roles like "a portrait painter". |
+| `CONSISTENT_TEXT_COLOR` | `True` | The stage timing table and the exporter's and SongFormer helper's messages (when run by `/export`) use the same colours as Musiclyse's own output. |
+| `PRINT_STAGE_TIMING` | `True` | Print a per-stage timing table after each fresh analysis. |
+
+## Commands on and off
+
+| Variable | Default | Description |
+|---|---|---|
+| `EXPORT_COMMAND` | `True` | Enable `/export`, which runs the exporter script beside this one with the same arguments it takes in Terminal. |
+| `EXPORT_SEARCH_DIR` | `saved-songs/llm-ready` | Where `/load` looks for exports (and in every folder inside it); a full path to a `.txt` anywhere also works. |
+| `MUSICVIDEO_COMMANDS` | `True` | Enable `/musicvideoanalyse` and `/musicvideoload`. |
+| `MUSICVIDEO_EXPORT_LEVEL` | `"plus"` | The export level `/musicvideoload` loads, and the one its export command makes. |
+| `MUSICVIDEO_EXPORT_WIKI` | `False` | Whether that export includes Wikipedia background. |
+| `MUSICVIDEO_PAIR_FILE` | `"musicvideo-pair.json"` | File in the video's folder recording which song save it pairs with. |
+| `LOOKUP_SEARCH_COMMAND` | `True` | Enable `/lookup-search`. |
+| `LOOKUP_SEARCH_MENU_MAX` | `0` | Titles listed in one `/lookup-search` menu; `0` lists all. |
+| `LOOKUP_SEARCH_DRAFT_MENU` | `True` | The `/lookup-search` menu opens on the input line and the chosen title goes back on the line (as `/load ""` does). |
+| `LOOKUP_WITH_LOAD_COMMANDS` | `True` | `/lookup` and `/lookup-search` work in any order with `/load`, `/videoload` and `/musicvideoload`. |
+| `CHAT_WIKI_LOOKUP_DEBUG` | `False` | Print details of each `/lookup` search. |
+| `HELP_COMMAND` | `True` | Enable `/help`. |
+| `CHATLOAD_NAME_MATCH` | `True` | `/chatload name` finds saves named `<date-time>-name.json` (a menu when several match). |
+| `VIDEO_FRIENDLY_USAGE` | `True` | `/videoanalyse` or `/musicvideoanalyse` without a video shows a usage line instead of an error dump. |
+| `VIDEO_CHAT_MAX_TOKENS` | `32000` | Token budget for a loaded video report (before song context). |
+| `VIDEO_CHAT_AUTO_FRAMES` | `0` | Evenly spaced reference images sent with each loaded video (`0`–`8`; `0` loads text only). |
+| `VIDEO_IGNORE_TAG_ARTIST_TITLE` | `True` | For video files, embedded artist/title tags are ignored; both come from the filename. |
+| `VIDEO_DEFAULT_SAVE_NAME` | `True` | `/videoanalyse` with no name uses the audio analysis's save name ("Artist - Song (music video)"). |
+| `VIDEO_SAME_SOURCE_SYNC` | `True` | When a loaded song was analysed from the same video file, the chat is told song time = video time. |
+| `SONGFORMER_SLASH_COMMAND` | `False` | Enable the `/songformer` command (setup, selftest, scan, compare, check). Analyses still use SongFormer when it is installed. |
+| `WIKI_DELETE_COMMAND` | `False` | Enable `/wikidelete` (mark Wikipedia articles and make a clean copy of the database without them) and the mark/preview keys in `/lookup-search` menus. |
+| `WIKI_DELETE_LIST` | `""` | The list of marked titles; `""` uses `<database>-deletions.txt` beside the database. |
+| `WIKI_HIDE_MARKED` | `True` | With `WIKI_DELETE_COMMAND` on, marked articles are left out of `/lookup` and `/lookup-search`. |
+
+## SongFormer (optional section-map check)
+
+| Variable | Default | Description |
+|---|---|---|
+| `SONGFORMER_COMMAND` | `True` | Use SongFormer (installed with `install_songformer.sh`) during analyses. |
+| `SONGFORMER_CORRECT_STRUCTURE` | `True` | Let SongFormer correct section maps; `False` turns every rule below off. |
+| `SONGFORMER_SNAP_TIMES` | `True` | A boundary both find moves to SongFormer's time (at most a bar). |
+| `SONGFORMER_ADD_SECTIONS` | `True` | A missed section change is added (not on instrumentals or dance tracks). |
+| `SONGFORMER_NAME_VOTE` | `True` | SongFormer votes on section names. |
+| `SONGFORMER_INSTRUMENTAL_NAMES` | `True` | An instrumental's first/last part is named Intro/Outro when both agree. |
+| `SONGFORMER_STRONG_MOVES` | `True` | Where SongFormer is very sure of a boundary, it can move a nearby one. |
+| `SONGFORMER_LATE_STARTS` | `True` | A part Musiclyse starts a few seconds early can start where SongFormer hears it. |
+| `SONGFORMER_SURE_ADDS` | `True` | Adds a part SongFormer is sure of when Musiclyse's next part is the kind SongFormer hears. |
+| `SONGFORMER_SURE_EARLY_STARTS` | `False` | Experimental: earlier starts where SongFormer is sure. |
+| `SONGFORMER_AFTER_ANALYSIS` | `False` | Also scan each new save with the SongFormer helper after `/analyse`, `/reanalyse`, `/batch` and `/musicvideoanalyse`. |
+| `SONGFORMER_PYTHON` | `""` | SongFormer's own Python; `""` uses `~/SongFormer/env/bin/python`. |
+| `SONGFORMER_REPO` | `""` | SongFormer's code folder; `""` uses `SongFormer` beside the script, else `~/SongFormer/code`. |
+| `SONGFORMER_DEVICE` | `"auto"` | `auto` (the Mac GPU when it works, else the CPU), `mps` or `cpu`. |
+| `SONGFORMER_SCAN_TIMEOUT_S` | `600` | A scan taking longer is abandoned and the map stays as it was. |
+
+## Further analysis controls
+
+| Variable | Default | Description |
+|---|---|---|
+| `ENABLE_JAMENDO_INSTRUMENTS` | `True` | MTG-Jamendo instrument tagging (models downloaded by the installer to `~/mtg_jamendo_data`; licence CC BY-NC-SA 4.0, non-commercial). |
+| `JAMENDO_MODEL_DIR` | `""` | Model folder; `""` uses `~/mtg_jamendo_data`. |
+| `JAMENDO_STEMS` | `True` | Also tag each separated stem. |
+| `JAMENDO_THREADS` | `4` | onnxruntime CPU threads. |
+| `ENABLE_LISTENING_DETAILS` | `True` | Extra listening-model passes describing voice delivery and production, effects and playing style, saved as `listening_details` and used by plus-level and higher exports. |
+| `LISTENING_DETAILS_SECTIONS` | `True` | Also describe each window across the song (`False`: whole-track pass only). |
+| `LISTENING_DETAILS_WINDOW_S` | `30.0` | Length of each window in seconds. |
+| `LISTENING_DETAILS_MAX_WINDOWS` | `16` | Maximum windows; longer tracks get an even spread. |
+| `TEMPO_HALFTIME_CHECK` | `True` | Detect songs whose drums play a half-time backbeat at a fast measured tempo, and report the slower tempo. |
+| `TEMPO_HALFTIME_BOTH_READINGS` | `True` | Where halving is too close to call, keep the tempo and note that the song can also be counted at half speed. |
+| `STRUCTURE_SPLIT_CHORUS_REPEATS` | `True` | Split a long chorus that is really the chorus sung twice. |
+| `STRUCTURE_CHORUS_SHARED_WORDS` | `True` | A section named Chorus whose sung words are a verse's (not the words the other choruses share) is named as a verse. |
+| `BATCH_STALL_RETRY` | `True` | `/batch`: a track whose listening model produces nothing for `BATCH_STALL_MINUTES` is stopped and analysed again once. |
+| `BATCH_STALL_MINUTES` | `10.0` | Minutes without output before a stalled track is retried. |
+
+## Exporter settings (at the top of `musiclyse-0.7-export.py`)
+
+| Variable | Default | Description |
+|---|---|---|
+| `MOSS_LOW_TRUST_FIELDS` | `True` | Treat prompt echoes and stock example answers as unreliable evidence in the chat view. |
+| `GENRE_STYLE_LED` | `True` | Refine or replace the chat-view recommended genre with sufficiently supported style evidence. |
+| `GENRE_STYLE_REFINE_MIN` | `0.35` | Minimum style confidence for refining a broad genre within its family. |
+| `GENRE_STYLE_REPLACE_MIN` | `0.30` | Minimum style confidence for replacing a genre family, with additional corroboration checks. |
+| `ERA_STYLE_CHECK` | `True` | Use a sufficiently confident period-specific style to check overly recent era estimates in the chat view. |
+| `ERA_STYLE_MIN` | `0.25` | Minimum style confidence for the era check. |
+| `ERA_STYLE_MAX_SPAN` | `25` | Maximum style heyday span in years for era checking. |
+| `REGIONAL_GENRE_GATE` | `True` | Require language or artist-background support for regional genre labels; suppress generic world/international labels. |
+| `GENRE_SYNTH_ROCK` | `True` | Combine supported rock-band and prominent synth evidence into a synth-rock reading. |
+| `HIDDEN_BASS_NOTE` | `True` | When deep sub-bass is a large share of the track's energy but the separated bass part reads as silent for much of the time the drums play, the export warns that the bass is probably there (a synth bass can end up in another part). |
+| `HIDDEN_BASS_MIN_SUB` | `25.0` | Minimum whole-track sub-bass share (%) for that warning. |
+| `HIDDEN_BASS_MIN_SILENT` | `0.40` | Minimum share of the drum-playing time with the bass part silent. |
+| `CORRECTION_SCOPE_NARROW` | `True` | In the export's instructions, only who sings and background facts the notes don't settle count as confirmed when the user states them; corrections about what the recording contains are weighed instead (`False`: any explicit factual correction counts as confirmed). |
+
+
 ## Configurable command names
 
 The slash-command spellings above can be changed in `USER CONFIGURATION`:
 
 | Variable | Default |
 |---|---|
-| `LISTEN_FLAG` | `"/listen"` |
-| `RELISTEN_FLAG` | `"/relisten"` |
-| `CORRECT_FLAG` | `"/correct"` |
-| `SAVE_FLAG` | `"/save"` |
+| `ANALYSE_FLAG` | `"/analyse"` |
+| `REANALYSE_FLAG` | `"/reanalyse"` |
+| `BATCH_FLAG` | `"/batch"` |
 | `LOAD_FLAG` | `"/load"` |
-| `LOADCOMPARE_FLAG` | `"/loadcompare"` |
+| `EXPORT_FLAG` | `"/export"` |
+| `LOOKUP_FLAG` | `"/lookup"` |
+| `LOOKUP_SEARCH_FLAG` | `"/lookup-search"` |
+| `MUSICVIDEO_ANALYSE_FLAG` | `"/musicvideoanalyse"` |
+| `MUSICVIDEO_LOAD_FLAG` | `"/musicvideoload"` |
+| `QUIET_FLAG` | `"/quiet"` |
+| `THINK_FLAG` | `"/think"` |
+| `GAME_FLAG` | `"/game"` |
+| `GAME_EXIT_FLAG` | `"/game-exit"` |
 | `CLEAR_FLAG` | `"/clear"` |
 | `CLEAR_ALL_FLAG` | `"/clearall"` |
-| `BATCH_FLAG` | `"/batch"` |
 | `PERSONA_FLAG` | `"/persona"` |
+| `HELP_FLAG` | `"/help"` |
 | `DEBUG_FLAG` | `"/debug"` |
 
 ## Environment overrides
@@ -698,7 +734,7 @@ These are actual environment variables, unlike the Python constants above. Set t
 
 ---
 
-**Scope:** This remains a practical configuration reference, not an exhaustive dump of every tuning constant. Additional `STRUCTURE_*` rules, instrument-probe thresholds, vocal/genre safeguards and algorithm thresholds are documented beside their assignments in `USER CONFIGURATION`. Runtime state, lookup tables and full prompt bodies are omitted. `DEFAULT_PERSONA_PROMPT` is defined elsewhere in the script; use `/persona` for routine persona changes.
+**Scope:** This is a practical configuration reference, not an exhaustive dump of every tuning constant. Additional `STRUCTURE_*` rules, instrument-probe thresholds, vocal/genre safeguards and algorithm thresholds are documented beside their assignments in `USER CONFIGURATION`. Runtime state, lookup tables and full prompt bodies are omitted. The default chat's prompt (`DEFAULT_CHAT_PROMPT`) is defined elsewhere in the script; use `/persona` for routine persona changes.
 
 
 # Possible future features:
@@ -709,7 +745,6 @@ These are a few things that I want to implement in the future but so far haven't
 * Most of the project was vibecoded with the help of several LLMs, and while the current build appears to be fully usable, those with better coding knowledge could probably help patch any issues.
 * Further improved timestamp labelling
 * Further improved estimated era accuracy for songs without a year tag
-
 
 
 
