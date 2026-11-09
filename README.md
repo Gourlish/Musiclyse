@@ -9,7 +9,7 @@ A highly configurable piece of local AI chatbot software that can "listen" to mu
 
 ![100 Percent Local](https://gourlish.altervista.org/musiclyse/local.svg)
 
-![Musiclyse - Screenshot](https://gourlish.altervista.org/musiclyse/Musiclyse04.png) 
+![Musiclyse - Screenshot](https://gourlish.altervista.org/musiclyse/Musiclyse07.png) 
 
 # About:
 
