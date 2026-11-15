@@ -33,8 +33,29 @@ The following features are all included in Musiclyse 0.7:
 * Export your .json files to specially formatted .txt files, allowing any general purpose LLM to "listen" to music and have highly contextual discussions about one or more songs. You can do this via musiclyse_export.py.
 * Seamlessly analyse music videos
 
+## The Musiclyse Pipeline
+
+Below is the pipeline for the not yet released Musiclyse 0.8:
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline8.png)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline7.png)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline6.png)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline5.png)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline4.png)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline3.png)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline2.png)
+
+![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline1.png)
+
 ## Version history:
 
+* Musiclyse 0.8 - Coming soon.
 * 2026/11/09 - Musiclyse 0.7. Completely overhauled the built in chatbot functionality. It no longer accepts raw .JSON files and now instead relies on .txt export files, which contain the same data in LLM-prompted form, for much better efficiency and fluidity. It should feel a lot less stiff or "drunk" than it did before, and these files contain all of the same descriptive data about tracks. The new default chatbot is really fun and witty; you'll love it. You can now save and load conversations. Unsaved conversation text remains in RAM only, as was the case previously. Now uses Gemma 4 31B as the output LLM. Conversations should feel much more fluid than they did with Muse Glimmer, which sounded sort of drunk. You can now enter /load "" or '' and it will give you a dropdown of tracks you've analysed and exported to select from. Commands have been updated to reflect the overhauled chatbot. Further refined vocalist identity detection. Added a game mode - right now there are 4 games (they're custom LLM prompts that serve specific functions). 3 are different censo from historic contexts (the Brezhnev-era USSR, the US during McCarthyism and the explicit lyric panic of the 1980s) that you can test, while one is a tool designed to tell you if a song would likely be suitable for a pop hit today. Vastly strengthened the singer identity algorithm (it still relies heavily for ambiguous cases on metadata and the wiki database, though). Added MTG-Jamendo model for additional instrument detection details. MOSS-Music now gives additional passes to allow for additional instrument playing style or production details on some tracks. Fixed a number of small bugs. Personas now take a few seconds to be accepted (or declined). I introduced this safety check due to stumbling upon an unintended problem where /persona mode in the rewritten chat was bypassing Gemma's usual safety guardrails on who it would roleplay as. Typing /load ""/'' will now bring down a dropdown menu to make it easier for you to select your song(s). Fixed a problem where certain genres listings were defaulting to scripted examples; specific genre detection should now be better. Exporter scripts now contain more information about the production details of tracks via the listening_details section of .json analysis files. Audio from video files can now be analysed without the need to convert first. Musiclyse now supports video analysis alongside talking about the music of a video! "Thinking..." progress notices in the chat now disappear when the output begins generating. Unneccessary LLM-written changelogs have been removed from the public version, making the file sizes smaller. If you would like a copy with LLM notes for development purposes (under the terms of the MIT license), please contact me at rjdgourley@outlook.com and I'll send them over to you. Integrated the functionality of the export script inside the main script. Added SongFormer for improved section labelling. Timestamps and section labels should now be noticeably more accurate on many tracks. Made BPM fixes that were causing double speed detection on some tracks. Added a license disclaimer on the startup screen. Added a /help menu. You no longer need to start Ollama manually before launching the script - it will open, if a local Ollama server is not already running, when you launch Musiclyse.
 * 2026/10/30 - Musiclyse 0.6.2. Brings major improvements to the export script, allowing for more in-depth and accurate conversations about tracks with general purpose LLMs. Fixes a number of minor bugs in the main script, but changes little in the song analysis pipeline.
 * 2026/10/28 - Musiclyse 0.6.1. A patch that makes improvements to vocal identity recognition. If you already have 0.6 installed, you can simply copy the 0.6.1 main script and export files to the same folder and run as before without any reinstall needed. Some tracks where there is conflicting evidence may take a bit longer to resolve the vocalist identity.
