@@ -36,7 +36,7 @@ The following features are all included in Musiclyse 0.8:
 
 ## The Musiclyse Pipeline
 
-Below is the pipeline for the not yet released Musiclyse 0.8:
+Below is the pipeline for Musiclyse 0.8:
 
 ![100 Percent Local](https://gourlish.altervista.org/musiclyse/pipelineimg/pipeline8.png)
 
