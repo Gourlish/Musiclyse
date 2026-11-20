@@ -17,7 +17,7 @@ Musiclyse is a Python script designed for high-spec Macs (it is easily portable 
 
 # Key features:
 
-The following features are all included in Musiclyse 0.7:
+The following features are all included in Musiclyse 0.8:
 
 * Beat, melody, genre, vocal, song key, song structure, scale and era analysis. Accuracy for many things has been significantly improved in 0.7.
 * Talk about the music theory behind a song.
@@ -32,6 +32,7 @@ The following features are all included in Musiclyse 0.7:
 * Specify a range (x seconds to y seconds) in a track to analyse for faster processing and more precise analysis.
 * Export your .json files to specially formatted .txt files, allowing any general purpose LLM to "listen" to music and have highly contextual discussions about one or more songs. You can do this via musiclyse_export.py.
 * Seamlessly analyse music videos
+* Save memories for a highly personalised music obsessed friend
 
 ## The Musiclyse Pipeline
 
@@ -55,7 +56,7 @@ Below is the pipeline for the not yet released Musiclyse 0.8:
 
 ## Version history:
 
-* Musiclyse 0.8 - Coming soon.
+* 2026/11/20 - Musiclyse 0.8 - Split the script from a monolithic piece into smaller modules for better reliability. Settings are in their own file. Whisper now detects the language of a song before transcribing lyrics to avoid hallucinations (eg: English being incorrectly transcribed into Welsh gibberish). Improvements in MIDI detection for more accurate music theory discussion on tracks. Timestamp and section labelling rules have been retuned to account for the changes in MIDI detection. Improvements made to how the singer identity stage looks up an artist and song via the Wikipedia RAG database, as well as other singer identity accuracy improvements. The default chatbot now knows the current date (its own knowledge is still limited to Gemma 4's cutoff of circa January 2025), and knows it is running locally rather than in the cloud. This does not apply to custom or game personas. Added /undo command, allowing you to delete the previous question/response and any content shared with it (videos/images/songs/wiki database articles). Improved Wikipedia /lookup capabilities and refined the /lookup-search tool. Implemented some hallucination mitigations for the default persona chat. Removed context limit of 8 images per request; you can now fit in as many as will fit within the context window. Implemented some formatting tweaks in the chat output. Improved the descriptive handling of music videos. Added /memory command to let the default chatbot reminisce about past discussions - use it on your thoughts you wish. /batch now defaults to a /batch folder within your Musiclyse root folder. You can now scan tracks and music videos with a standalone album artwork image via --cover, or where something (eg: a music video) lacks cover artwork, a photo of a vocalist to determine vocalist identity better. Improved chat on question context recognition and recognising the user's language. Will now show at the start of each message when using the custom persona. Implemented safeguards to reduce the likelyhood of chatbot hallucinations (though it can still accept false corrections from a user). Improved the reliability of exports in a number of areas. Fixed some bugs in the genre check relabelling rules.
 * 2026/11/09 - Musiclyse 0.7. Completely overhauled the built in chatbot functionality. It no longer accepts raw .JSON files and now instead relies on .txt export files, which contain the same data in LLM-prompted form, for much better efficiency and fluidity. It should feel a lot less stiff or "drunk" than it did before, and these files contain all of the same descriptive data about tracks. The new default chatbot is really fun and witty; you'll love it. You can now save and load conversations. Unsaved conversation text remains in RAM only, as was the case previously. Now uses Gemma 4 31B as the output LLM. Conversations should feel much more fluid than they did with Muse Glimmer, which sounded sort of drunk. You can now enter /load "" or '' and it will give you a dropdown of tracks you've analysed and exported to select from. Commands have been updated to reflect the overhauled chatbot. Further refined vocalist identity detection. Added a game mode - right now there are 4 games (they're custom LLM prompts that serve specific functions). 3 are different censo from historic contexts (the Brezhnev-era USSR, the US during McCarthyism and the explicit lyric panic of the 1980s) that you can test, while one is a tool designed to tell you if a song would likely be suitable for a pop hit today. Vastly strengthened the singer identity algorithm (it still relies heavily for ambiguous cases on metadata and the wiki database, though). Added MTG-Jamendo model for additional instrument detection details. MOSS-Music now gives additional passes to allow for additional instrument playing style or production details on some tracks. Fixed a number of small bugs. Personas now take a few seconds to be accepted (or declined). I introduced this safety check due to stumbling upon an unintended problem where /persona mode in the rewritten chat was bypassing Gemma's usual safety guardrails on who it would roleplay as. Typing /load ""/'' will now bring down a dropdown menu to make it easier for you to select your song(s). Fixed a problem where certain genres listings were defaulting to scripted examples; specific genre detection should now be better. Exporter scripts now contain more information about the production details of tracks via the listening_details section of .json analysis files. Audio from video files can now be analysed without the need to convert first. Musiclyse now supports video analysis alongside talking about the music of a video! "Thinking..." progress notices in the chat now disappear when the output begins generating. Unneccessary LLM-written changelogs have been removed from the public version, making the file sizes smaller. If you would like a copy with LLM notes for development purposes (under the terms of the MIT license), please contact me at rjdgourley@outlook.com and I'll send them over to you. Integrated the functionality of the export script inside the main script. Added SongFormer for improved section labelling. Timestamps and section labels should now be noticeably more accurate on many tracks. Made BPM fixes that were causing double speed detection on some tracks. Added a license disclaimer on the startup screen. Added a /help menu. You no longer need to start Ollama manually before launching the script - it will open, if a local Ollama server is not already running, when you launch Musiclyse.
 * 2026/10/30 - Musiclyse 0.6.2. Brings major improvements to the export script, allowing for more in-depth and accurate conversations about tracks with general purpose LLMs. Fixes a number of minor bugs in the main script, but changes little in the song analysis pipeline.
 * 2026/10/28 - Musiclyse 0.6.1. A patch that makes improvements to vocal identity recognition. If you already have 0.6 installed, you can simply copy the 0.6.1 main script and export files to the same folder and run as before without any reinstall needed. Some tracks where there is conflicting evidence may take a bit longer to resolve the vocalist identity.
@@ -74,7 +75,7 @@ Below is the pipeline for the not yet released Musiclyse 0.8:
 
 Due to the nature of what it's doing, it's intended to be run on powerful machines with a good quality GPU and 64GB RAM or higher. Currently it's only been tested on MacOS, but it should be pretty easy to get running on Linux, and is potentially runnable on Windows. For users with less powerful machines, I'd advise swapping Gemma 4 31B for Gemma 4 26B A4B, which has reasonable knowledge but is not as resource heavy. Users with lower spec machines might benefit from installing a 4-8B model via Ollama. You can swap out the Ollama model by altering the "OLLAMA_MODEL" value with the exact name of your model.
 
-# Manual Installation for 0.7 (for MacOS):
+# Manual Installation for 0.8 (for MacOS):
 
 1: Ensure Python 3.11 is installed on your system
 
@@ -88,7 +89,7 @@ Due to the nature of what it's doing, it's intended to be run on powerful machin
 brew install ollama ffmpeg portaudio
 ```
 
-4: In a new terminal window, start Ollama and install Gemma 4 31B (if you want a different model for output, change the specification in musiclyse-0.7.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use Ollama's default version of Gemma 4 31B.
+4: In a new terminal window, start Ollama and install Gemma 4 31B (if you want a different model for output, change the specification in musiclyse-0.8-settings.py via the "OLLAMA_MODEL =" flag to the exact Ollama name of the model of your choice, and pull that different model with Ollama). By default the model is configured to use Ollama's default version of Gemma 4 31B.
 
 ```
 ollama serve
@@ -116,22 +117,24 @@ omnizart download-checkpoints
 9: Run the software:
 
 ```
-python musiclyse-0.7 .py
+python musiclyse-0.8.py
 ```
 
-# Configurable Variables & Flags in Musiclyse 0.7
+# Configurable Variables & Flags in Musiclyse 0.8
+
+All the variables below are set in `musiclyse-0.8-settings.py`, which must stay in the same folder as `musiclyse-0.8.py` and `musiclyse-0.8-export.py`. Its first part holds the main script's settings and its second part (after the `# EXPORTER SETTINGS` line) the exporter's; each script reads its own part when it starts, so restart Musiclyse (or run the exporter again) after a change. To keep your changes when you move to a new build, put them in your own `musiclyse-my-settings.py` beside the scripts instead (`PERSONAL_SETTINGS_FILE`): one `NAME = value` line per setting, with plain values (text, numbers, `True`/`False`, `None` or lists). It is read on top of the settings file every time a script starts, and a name that isn't a setting gets a warning and is left out.
 
 ## Command-line
 
 | Usage | Description |
 |---|---|
-| `python musiclyse-0.7.py` | Start the chat. Analyse tracks with `/analyse` or `/batch`, export them with `/export` and load the exports with `/load`. |
-| `python musiclyse-0.7.py "saved-songs/llm-ready/plus-wiki/Artist - Title.txt"` | Start with an export already loaded. An audio file given here is not analysed: a note says to use `/analyse`. |
-| `python musiclyse-0.7.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker used by `/batch`. |
-| `python musiclyse-0.7.py --batch-one-analyze /path/to/song.mp3 /tmp/staging.json` | Internal: heavy-analysis stage for split-process batch mode. |
-| `python musiclyse-0.7.py --batch-one-finish /tmp/staging.json` | Internal: identity/save stage for split-process batch mode. |
-| `python musiclyse-0.7.py --omnizart-prefetch /tmp/input.json /tmp/output.json` | Internal: separate-process Omnizart transcription worker; not a normal startup option. |
-| `python musiclyse-0.7-export.py [files or folder] [options]` | The exporter: turns saved `.json` analyses into `.txt` exports for chatting. With no files or folder it exports every save in `saved-songs/`. `/export` runs it from inside the chat with the same options (see **Export options**). |
+| `python musiclyse-0.8.py` | Start the chat. Analyse tracks with `/analyse` or `/batch`, export them with `/export` and load the exports with `/load`. |
+| `python musiclyse-0.8.py "saved-songs/llm-ready/plus-wiki/Artist - Title.txt"` | Start with an export already loaded. An audio file given here is not analysed: a note says to use `/analyse`. |
+| `python musiclyse-0.8.py --batch-one /path/to/song.mp3` | Internal: isolated single-track batch worker used by `/batch`. |
+| `python musiclyse-0.8.py --batch-one-analyze /path/to/song.mp3 /tmp/staging.json` | Internal: heavy-analysis stage for split-process batch mode. |
+| `python musiclyse-0.8.py --batch-one-finish /tmp/staging.json` | Internal: identity/save stage for split-process batch mode. |
+| `python musiclyse-0.8.py --omnizart-prefetch /tmp/input.json /tmp/output.json` | Internal: separate-process Omnizart transcription worker; not a normal startup option. |
+| `python musiclyse-0.8-export.py [files or folder] [options]` | The exporter: turns saved `.json` analyses into `.txt` exports for chatting. With no files or folder it exports every save in `saved-songs/`. `/export` runs it from inside the chat with the same options (see **Export options**). |
 
 ## In-chat slash commands
 
@@ -139,7 +142,8 @@ python musiclyse-0.7 .py
 |---|---|
 | `/analyse <audio file>` | Analyse one track (audio or video file) and save it to `saved-songs/`; skipped if it is already saved. |
 | `/reanalyse <audio file>` | Analyse a track again, replacing its save. |
-| `/batch <folder>` | Analyse every audio file in a folder into `saved-songs/`; skips files already saved. |
+| `--cover "image"` / `--photo "image"` | Add to `/analyse`, `/reanalyse` or `/musicvideoanalyse` (one track at a time, not `/batch`): an image to use as the cover, or a photo of the artist (for a group, its lead singer) used only to help work out who sings; the photo isn't saved. With either one, `/musicvideoanalyse` scans the song again even when it is already saved. |
+| `/batch [folder]` | Analyse every audio file in a folder into `saved-songs/`; skips files already saved. With no folder, it analyses the `batch` folder beside the script, when there is one (`BATCH_DEFAULT_FOLDER`). |
 | `/export [files or folder] [options]` | Export saves for chatting, exactly as the exporter script does. No path exports every save in `saved-songs/`; empty quotes (`/export ""`) choose songs from a menu; `/export --help` lists the options. |
 | `/load "Artist - Title" [question]` | Load an export (or a combined export) to chat about; the question is optional. `/load ""` opens a menu of your exports. Exports are found under `saved-songs/llm-ready/` (any folder inside it) or by path. |
 | `/load "Artist 1 - Title 1" "Artist 2 - Title 2" … [question]` | Load several exports at once, e.g. to compare them. |
@@ -158,13 +162,18 @@ python musiclyse-0.7 .py
 | `/musicvideoload <name> [question]` | Load a music video's song export and its video report together; empty quotes open a menu. |
 | `/persona <description>` | Chat as a custom character. The description is checked by the default assistant first (it takes a few seconds), and a description that points to a picture waits for a reference image. |
 | `/persona reset` | Return to the default assistant. |
+| `/memory [topic]` | Save a short memory of this conversation (or of one topic) for future chats. It is shown first: Enter saves it, `e` edits it, Esc cancels. Saved memories are brought into new conversations in the default chat only (not custom characters or games). |
+| `/memory list` / `/memory on` / `/memory off` | Read or delete saved memories (Enter reads one, `d` deletes one), or stop or restart bringing them into conversations (remembered between sessions). |
 | `/think` | Add to any prompt to let the chat model think before answering (slower). |
 | `/game` | Play a game: chat with a built-in character chosen from a menu. |
 | `/game-exit` | Leave the game and return to the default chat. |
 | `/clear` | Clear the conversation and reset token counters; loaded exports and looked-up background are kept and sent again. |
 | `/clearall` | Clear everything, including loaded exports and looked-up background. Files on disk are untouched. |
+| `/undo` | Remove your last message and everything it added (the reply, and any songs, articles, images or videos loaded with it); repeat to go further back, up to the last `/clear`, `/clearall`, `/chatload`, persona or game change. |
 | `/debug` | Show the last message sent to the chat model. |
 | `/help` | On its own: show the list of commands again. |
+| `/wikidelete "Title"` / `list` / `undo "Title"` / `apply` | Mark Wikipedia articles and write a clean copy of the database without them (`d` marks one in a `/lookup-search` menu). Only when `WIKI_DELETE_COMMAND` is `True` (off by default). |
+| `/songformer [setup\|selftest\|scan\|compare\|check]` | SongFormer tools: `check` lists what SongFormer would change in your saves (changes none); `setup` shows the setup steps. Only when `SONGFORMER_SLASH_COMMAND` is `True` (off by default); analyses use SongFormer either way. |
 | Images | Drag an image file into the window (or type its path or web address) in any prompt to show it to the chat. |
 | `quit` | Exit the application (`exit` also works). |
 
@@ -388,9 +397,9 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 
 | Variable | Default | Description |
 |---|---:|---|
-| `MAX_WRITER_IMAGES_PER_TURN` | `8` | Maximum images actually sent to Ollama in one request. |
+| `MAX_WRITER_IMAGES_PER_TURN` | `8` | Maximum images actually sent to Ollama in one request by scans and helper requests. The chat sends every image that fits its context window instead (`CHAT_IMAGES_FILL_CONTEXT`, on by default) and uses this limit only when that is `False`. |
 | `IMAGE_RETAIN_LAST_N_MESSAGES` | `8` | Retain image data for this many recent history messages. |
-| `MAX_WRITER_HISTORY_MESSAGES` | `80` | Maximum writer-history messages retained. |
+| `MAX_WRITER_HISTORY_MESSAGES` | `80` | Maximum history messages kept for non-chat helper requests; the chat is limited by its context budget instead. |
 | `MAX_MESSAGE_CHARS_FOR_OLLAMA` | `120_000` | Maximum message length sent to Ollama. |
 | `HISTORY_CHAR_BUDGET_FACTOR` | `3.2` | Conservative characters-per-token estimate for trimming history. |
 
@@ -569,7 +578,7 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 | `REED_STRONG_LEAD_MIN_WINDOW_SHARE` | `0.75` | Minimum share of windows supporting a strong reed lead. |
 | `REED_PAD_MIN_POLYPHONY` | `4.0` | Minimum polyphony used to identify a likely chordal pad behind a rejected reed tag. |
 | `INSTRUMENTATION_COLLAPSE_SPANS` | `True` | Collapse repeated timestamped instrument names into one entry per instrument. |
-| `STEM_NOTE_MIN_ABS_RMS` | `0.001` | Reject notes below this RMS in their stem as likely separation residue. |
+| `STEM_NOTE_MIN_ABS_RMS` | `0.0003` | Reject notes below this RMS in their stem as likely separation residue (about -70.5 dBFS; `0.001`, as in 0.7, when `STEM_MIDI_PRE6_TUNING` is `False`). |
 | `BEAT_GRID_BARS` | `2` | Number of bars shown in a beat grid. |
 | `BEAT_GRID_SUBDIV` | `4` | Cells per beat; `4` gives sixteenth-note resolution. |
 | `BEAT_GRID_MIN_HITS` | `6` | Minimum hits for beat-grid reporting. |
@@ -619,7 +628,7 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 | `OLLAMA_LAUNCH_LOG` | `"logs/ollama.log"` | The log file for `"background_log"` and `"log_window"`; a relative path is inside the script's folder. |
 | `OLLAMA_LOG_WINDOW` | `"behind"` | Where the `"log_window"` window opens: `"behind"` Musiclyse's window, or `"minimized"` into the Dock. |
 | `UNLOAD_CHAT_MODEL_ON_EXIT` | `True` | Free the chat model's memory in Ollama when Musiclyse closes. |
-| `CHAT_NUM_CTX_BY_MODEL` | *(see script)* | Context window per chat model name; only the chat uses it, scans keep their own windows. |
+| `CHAT_NUM_CTX_BY_MODEL` | *(see settings file)* | Context window per chat model name; only the chat uses it, scans keep their own windows. |
 | `CHAT_THINKING` | `False` | Whether the chat model thinks before replying: `False` never (`/think` asks for one reply), `True` always, `None` leaves it to the model or Ollama. |
 | `CHAT_KEEP_IMAGES` | `"auto"` | Keep earlier images in the conversation: `"auto"` keeps them on GGUF models and drops them on others; `True` always keeps; `False` always drops. |
 | `CHAT_TRIM_HISTORY` | `True` | When the conversation fills its share of the context window, drop its oldest quarter. Loaded exports and looked-up background are never removed. |
@@ -629,7 +638,7 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 | `CHAT_SOFT_REFUSALS` | `True` | The default chat and the games decline anything they won't do briefly, in their own voice, offering something close instead. Only changes how they say no, not what they'll discuss. |
 | `PERSONA_CONFIRM_FULL` | `True` | The "Persona set to:" confirmation shows the whole description (`False`: only its first 160 characters / first line). |
 | `PERSONA_IMAGE_REFERENCE_ONLY` | `True` | `/persona` waits for a reference image only when the description points to a picture ("the person in this photo"), not for roles like "a portrait painter". |
-| `CONSISTENT_TEXT_COLOR` | `True` | The stage timing table and the exporter's and SongFormer helper's messages (when run by `/export`) use the same colours as Musiclyse's own output. |
+| `CONSISTENT_TEXT_COLOR` | `True` | The stage timing table and the exporter's and SongFormer helper's messages (when `/export` or `/songformer` runs them) use the same colours as Musiclyse's own output. |
 | `PRINT_STAGE_TIMING` | `True` | Print a per-stage timing table after each fresh analysis. |
 
 ## Commands on and off
@@ -648,10 +657,17 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 | `LOOKUP_WITH_LOAD_COMMANDS` | `True` | `/lookup` and `/lookup-search` work in any order with `/load`, `/videoload` and `/musicvideoload`. |
 | `CHAT_WIKI_LOOKUP_DEBUG` | `False` | Print details of each `/lookup` search. |
 | `HELP_COMMAND` | `True` | Enable `/help`. |
+| `UNDO_COMMAND` | `True` | Enable `/undo`. |
+| `CHAT_MEMORY` | `True` | Enable `/memory` and bring saved memories into new conversations in the default chat. |
+| `CHAT_MEMORY_FILE` | `""` | Where memories are kept; `""` uses `memories.json` beside the script. |
+| `CHAT_MEMORY_MAX_TOKENS` | `2000` | Most tokens of saved memories brought into one conversation. |
+| `SCAN_IMAGE_OPTIONS` | `True` | Offer `--cover` and `--photo` with `/analyse`, `/reanalyse` and `/musicvideoanalyse`. |
+| `BATCH_DEFAULT_FOLDER` | `"batch"` | The folder a bare `/batch` analyses (beside the script, or an absolute path); `""` makes a bare `/batch` only show how to use it. |
 | `CHATLOAD_NAME_MATCH` | `True` | `/chatload name` finds saves named `<date-time>-name.json` (a menu when several match). |
 | `VIDEO_FRIENDLY_USAGE` | `True` | `/videoanalyse` or `/musicvideoanalyse` without a video shows a usage line instead of an error dump. |
 | `VIDEO_CHAT_MAX_TOKENS` | `32000` | Token budget for a loaded video report (before song context). |
-| `VIDEO_CHAT_AUTO_FRAMES` | `0` | Evenly spaced reference images sent with each loaded video (`0`–`8`; `0` loads text only). |
+| `VIDEO_CHAT_AUTO_FRAMES` | `0` | Evenly spaced reference images sent with each loaded video (`0`–`8`). Above `0` it replaces the key frames; at `0` the video brings up to `VIDEO_CHAT_KEY_FRAMES` key frames instead. |
+| `VIDEO_CHAT_KEY_FRAMES` | `6` | Frames a loaded video brings for the chat model to see (`0`–`8`), picked from different shots, frames where someone is seen singing first, never black or blank ones. `0` (with `VIDEO_CHAT_AUTO_FRAMES` also `0`) loads the video as text only. |
 | `VIDEO_IGNORE_TAG_ARTIST_TITLE` | `True` | For video files, embedded artist/title tags are ignored; both come from the filename. |
 | `VIDEO_DEFAULT_SAVE_NAME` | `True` | `/videoanalyse` with no name uses the audio analysis's save name ("Artist - Song (music video)"). |
 | `VIDEO_SAME_SOURCE_SYNC` | `True` | When a loaded song was analysed from the same video file, the chat is told song time = video time. |
@@ -672,8 +688,8 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 | `SONGFORMER_INSTRUMENTAL_NAMES` | `True` | An instrumental's first/last part is named Intro/Outro when both agree. |
 | `SONGFORMER_STRONG_MOVES` | `True` | Where SongFormer is very sure of a boundary, it can move a nearby one. |
 | `SONGFORMER_LATE_STARTS` | `True` | A part Musiclyse starts a few seconds early can start where SongFormer hears it. |
-| `SONGFORMER_SURE_ADDS` | `True` | Adds a part SongFormer is sure of when Musiclyse's next part is the kind SongFormer hears. |
-| `SONGFORMER_SURE_EARLY_STARTS` | `False` | Experimental: earlier starts where SongFormer is sure. |
+| `SONGFORMER_SURE_ADDS` | `True` | A section change SongFormer is sure of (boundary strength 0.9 or more) that Musiclyse's map lacks is added, also on dance tracks; the other safeguards stay. |
+| `SONGFORMER_SURE_EARLY_STARTS` | `False` | Experimental: where the part after such a boundary would be too short and Musiclyse's next part (at most 4.5 bars later) is the kind SongFormer hears, that part starts there instead. Off: right on two timed songs, wrong on one. |
 | `SONGFORMER_AFTER_ANALYSIS` | `False` | Also scan each new save with the SongFormer helper after `/analyse`, `/reanalyse`, `/batch` and `/musicvideoanalyse`. |
 | `SONGFORMER_PYTHON` | `""` | SongFormer's own Python; `""` uses `~/SongFormer/env/bin/python`. |
 | `SONGFORMER_REPO` | `""` | SongFormer's code folder; `""` uses `SongFormer` beside the script, else `~/SongFormer/code`. |
@@ -699,7 +715,7 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 | `BATCH_STALL_RETRY` | `True` | `/batch`: a track whose listening model produces nothing for `BATCH_STALL_MINUTES` is stopped and analysed again once. |
 | `BATCH_STALL_MINUTES` | `10.0` | Minutes without output before a stalled track is retried. |
 
-## Exporter settings (at the top of `musiclyse-0.7-export.py`)
+## Exporter settings (the `EXPORTER SETTINGS` part of `musiclyse-0.8-settings.py`)
 
 | Variable | Default | Description |
 |---|---|---|
@@ -720,7 +736,7 @@ Further options (`--model`, `--endpoint`, `--max-side`, `--scene-threshold`, `--
 
 ## Configurable command names
 
-The slash-command spellings above can be changed in `USER CONFIGURATION`:
+The slash-command spellings above can be changed in `musiclyse-0.8-settings.py` (or your own `musiclyse-my-settings.py`):
 
 | Variable | Default |
 |---|---|
@@ -740,6 +756,10 @@ The slash-command spellings above can be changed in `USER CONFIGURATION`:
 | `CLEAR_FLAG` | `"/clear"` |
 | `CLEAR_ALL_FLAG` | `"/clearall"` |
 | `PERSONA_FLAG` | `"/persona"` |
+| `MEMORY_FLAG` | `"/memory"` |
+| `UNDO_FLAG` | `"/undo"` |
+| `WIKI_DELETE_FLAG` | `"/wikidelete"` |
+| `SONGFORMER_FLAG` | `"/songformer"` |
 | `HELP_FLAG` | `"/help"` |
 | `DEBUG_FLAG` | `"/debug"` |
 
@@ -755,7 +775,7 @@ These are actual environment variables, unlike the Python constants above. Set t
 
 ---
 
-**Scope:** This is a practical configuration reference, not an exhaustive dump of every tuning constant. Additional `STRUCTURE_*` rules, instrument-probe thresholds, vocal/genre safeguards and algorithm thresholds are documented beside their assignments in `USER CONFIGURATION`. Runtime state, lookup tables and full prompt bodies are omitted. The default chat's prompt (`DEFAULT_CHAT_PROMPT`) is defined elsewhere in the script; use `/persona` for routine persona changes.
+**Scope:** This is a practical configuration reference, not an exhaustive dump of every tuning constant. Additional `STRUCTURE_*` rules, instrument-probe thresholds, vocal/genre safeguards and algorithm thresholds are documented beside their assignments in `musiclyse-0.8-settings.py`. Runtime state, lookup tables and full prompt bodies are omitted. The default chat's prompt (`DEFAULT_CHAT_PROMPT`) is defined in `musiclyse-0.8-chat.py`; use `/persona` for routine persona changes.
 
 
 # Possible future features:
